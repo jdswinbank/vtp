@@ -1,15 +1,316 @@
 \documentclass[a4paper,11pt]{ivoa}
+\usepackage[a4paper,left=1.2in,right=1.2in,top=1.2in,bottom=1.2in]{geometry}
+\usepackage{lmodern}
+\usepackage{natbib}
+\usepackage{minted}
 
 \title{VOEvent Transport Protocol}
 \author{Alasdair Allan, Robert B. Denny, John Swinbank}
+\editor{John Swinbank}
 \ivoatype{IVOA Proposed Recommendadation}
-\ivoagroup{TDIG}
+\ivoagroup{Time Domain Interest Group}
 \version{1.2 (draft)}
+
 
 \begin{document}
 \maketitle
 
+\section*{Abstract}
+
+The IVOA VOEvent Recommendation \citep{Seaman:2011} defines a means of
+describing a transient celestial event but, purposely, remains silent on the
+topic of how those descriptions should be transmitted. This document
+formalizes a TCP-based protocol for VOEvent transportation that has been in
+use by members of the VOEvent community for several years and discusses the
+topology of the event distribution network. It is intended to act as a
+reference for the production of compliant protocol implementations.
+
+\section*{Status of this document}
+
+This document has been produced by John Swinbank based on the version 1.1
+specification by Allan \& Denny. This draft version is a work in progress. It
+is intended to add clarifications to the previous version without changing the
+on-the-wire protocol.
+
+This is an IVOA Note expressing suggestions from and opinions of the authors.
+It is intended to share best practices, possible approaches, or other
+perspectives on interoperability with the Virtual Observatory. It should not
+be referenced or otherwise interpreted as a standard specification.
+
+A list of current IVOA Recommendations and other technical documents can be
+found at \url{http://www.ivoa.net/documents/}.
+
+\section*{Acknowledgements}
+
+\begin{itemize}
+    \item{Robert W. White, ex LANL, now at NREL}
+    \item{Phillip Warner, ex NOAO}
+    \item{Robert Seaman, NOAO}
+\end{itemize}
+
+Swinbank acknowledges support from the European Research Council via Advanced
+Investigator Grant 247295.
+
+\newpage
+
+\tableofcontents
+
+\newpage
+
 \section{Introduction}
-This is the intro.
+\label{sec:intro}
+
+The VOEvent standard \citep{Seaman:2011} defines a means of representing a
+transient celestial event with an implicit request for action on the part of
+the recipient. The VOEvent standard is transport neutral: it does not take a
+position on the mechanism by which the event should be transmitted from its
+author to interested recipients. However, it encourages the construction of “a
+robust general-purpose network of interoperating brokers” for event
+transmission.
+
+To date, a number of different event distribution networks have been
+prototyped and met with varying degrees of technical success and community
+adoption. However, as the number of interested participants grows, and
+next-generation large-scale survey instruments such as LSST\footnote{Large
+Synoptic Survey Telescope; \url{http://www.lsst.org/}}, LIGO\footnote{Laser
+Interferometric Gravitational-Wave Observatory; \url{http://www.ligo.org}},
+LOFAR\footnote{Low Frequency Array; \url{http://www.lofar.org}} and
+SKA\footnote{Square Kilometer Array; \url{http://www.ska-telescope.org/}} are
+developed and begin to become available, it is clear that a standard,
+interoperable mechanism for event communication is required. It is such a
+mechanism that this document aims to describe.
+
+The purpose of the protocol described herein is to transport a VOEvent message
+from its sender to one or more interested recipients. To achieve this, we
+envision three distinct network roles: authors, which create events; brokers,
+which receive events from authors and distribute them, and subscribers, which
+receive and (if appropriate) act upon the events. See Figure \ref{fig:network}
+for an illustration. Note that a single entity may perform more than one role
+within the network: for example, creating events and distributing its own
+creations (combining the author and broker roles) or receiving events from a
+broker and redistributing them to a list of subscribers (combining the
+subscriber and broker roles).
+
+Building upon this architecture, a strongly-connected set of brokers which
+subscriber to each other's event streams and redistribute to their subscribers
+(the ``VOEventNet backbone'') provides a fault-tolerant system which is
+resilient against the failure of one or more network entities. Such a backbone
+system is already under construction by members of the VOEvent community.  The
+protocol described herein is intentionally as simple as possible while still
+accomplishing the required task. There are some value-added VOEvent services
+being developed which may require more complex protocols, but these fall
+outside the scope of the current document.
+
+\section{Terminology}
+
+Throughout this document, we adopt the terminology of RFC 2119
+\citep{Bradner:1997}. In particular, note that:
+
+\begin{itemize}
+    \item{The word ``must'' indicates an absolute requirement of the
+    specification;}
+
+    \item{The word ``should'' indicates behavior that is normally included in
+    implementations of the specification, but there may exist valid reasons
+    for excluding it in particular circumstances;}
+
+    \item{The word ``may'' indicates purely optional behavior which is
+    permitted according to this specification.}
+\end{itemize}
+
+\section{Common characteristics}
+
+\subsection{Design goals}
+
+The Transport Protocol, hereafter VTP, is provides a simple means of
+transporting VOEvents from authors through brokers to subscribers.
+
+VTP transmits a up to single VOEvent message in each transaction. If multiple
+VOEvent messages are to be transmitted, multiple transactions must take place.
+
+VTP is non-transformational on VOEvents being transmitted: the message
+delivered to a subscriber should be bit-for-bit identical to that provided by
+an author. If an intermediary wishes to modify or annotate the event, they
+should not edit the event in transport, but rather generate a new event to
+supplement or replace it.
+
+VTP does not provide a transport-level means of annotating or otherwise
+embellishing VOEvents, or of providing stream-level metadata.
+
+VTP values simplicity of design and operation to lower the barrier to entry. It
+is not intended to meet every use case. As per Section \ref{sec:intro}, it is
+anticipated that some VOEvent-based services will require more complex
+protocols.
+
+\subsection{Network layer}
+
+VTP operates over TCP (Information Sciences Institute, 1981) connections, and
+relies on TCP's guaranteed error-free in-order delivery of data: no checksum
+or digest data is included. All messages are sent over the TCP connection
+preceded by a 4-byte network-ordered\footnote{As defined by
+\citet{Reynolds:1994}; also called ``big-endian'' ordering.} count, followed
+immediately by the payload data. The 4-byte count is interpreted as a 32-bit
+integer equal to the number of payload bytes following the count bytes. The
+payload is considered an opaque collection of bytes at this level\footnote{As
+a result, the format of the document being transmitted is opaque to the
+transport layer. Therefore both ASCII and UTF-8 are equally supported}.
+
+\subsection{Message format}
+
+The payload of the a VTP message is an XML document. It must consist of an XML
+declaration followed by, in order, optional XML comments, a single VOEvent or
+Transport element, and more optional XML comments. It must validate against
+either the VOEvent XML
+schema\footnote{\url{http://www.ivoa.net/xml/VOEvent/VOEvent-v2.0.xsd}} or the
+Transport XML schema (Appendix \ref{sec:transportschema}). Transport elements
+are used by the VTP system itself and are invisible to end-users: see Section
+\ref{sec:transport} for details.
+
+\subsection{Broker behaviour}
+
+Although the simplest broker implementation may simply forward all unique
+events it receives, either directly from authors or from other brokers, to all
+of its subscribers, this behavior is not required. Instead, the broker may
+provide ``value-added'' services which limit how messages are redistributed.
+For example, a broker may make arrangements with some or all of its
+subscribers to filter the events it receives, and only forward those events
+fulfilling some predefined criteria to its subscribers. Similarly, brokers may
+limit access to some clients based on various criteria (\S\ref{sec:limit}).
+
+VTP does not provide in-band notification of these per-broker details. For
+example, the protocol does not make an author submitting to a filtering broker
+aware that their event might not be sent to all of the broker's subscribers,
+and, similarly, it does not make a subscriber of a filtering broker aware that
+they might not receive a complete set of events. It is the responsibility of
+authors and subscribers to ensure that the brokers they use provide the
+services they require. Brokers should clearly advertise any added-value
+behavior they provide, for example on a website or through the IVOA registry.
+
+\section{Node roles}
+
+The VOEvent network consists of three types of nodes (refer to Fig.
+\ref{fig:network}):
+
+\begin{itemize}
+    \item{Author}
+    \item{Broker}
+    \item{Subscriber}
+\end{itemize}
+
+The flow of messages is over three types of connections:
+
+\begin{itemize}
+    \item{Author to Broker}
+    \item{Broker to Subscriber}
+    \item{Broker to Broker}
+\end{itemize}
+
+Each type of connection is discussed qualitatively below.
+
+\subsection{Author to Broker}
+
+When an author wants to submit a VOEvent message to the network, it opens a
+TCP connection to a broker, sends the message, waits for a response from the
+broker, and then closes the TCP connection. The response from the broker is a
+Transport message.
+
+\subsection{Broker to Subscriber}
+
+When a subscriber wants to receive VOEvent message traffic, it opens a TCP
+connection to a broker. This connection is kept open continuously. When the
+broker receives a message, it relays a copy of the VOEvent message to all of
+the connected subscribers. Thus, a subscriber must continuously listen on the
+TCP connection and be prepared to receive VOEvent messages at any time, even
+when it is busy processing a previously received VOEvent message. When a
+subscriber receives a VOEvent message from its broker, it must respond with an
+appropriate Transport message.
+
+\subsection{Broker to Broker}
+
+Traffic between brokers uses the preceding methods. Each broker takes the role
+subscriber as far as every other broker is concerned. A broker that wishes to
+receive a feed from another broker should connect to that broker's subscriber
+port. No special protocol features are needed.
+
+\section{Connection Maintenance}
+
+All connections over which a broker sends VOEvent messages are kept open
+continuously. Basic TCP does not provide any dead-peer indication\footnote{
+TCP does support a ``keep-alive'' service, but it is not universally available
+\citep{Braden:1989}.}. Further, network infrastructure devices might sever a
+TCP connection after some period of inactivity. This gives rise to the need
+for keep-alive messages. After no more than 90 seconds of inactivity on any
+given connection, the broker must send a Transport \texttt{iamalive} message,
+to which the subscriber must reply with a copy of that message plus some
+optional identification information. For details of the message format, see
+Section \ref{sec:transport}.  At both ends of the continuous connection, the
+node either expects to receive an \texttt{iamalive} message or expects to
+receive the response to its \texttt{iamalive} message. If not seen, the node
+should assume that the connection has been lost or the peer is dead. At this
+point, the node that was responsible for opening the connection may attempt to
+re-initiate it. A geometric back-off algorithm may be used to avoid network
+load.
+
+\section{Transport messages}
+\label{sec:transport}
+
+Transport messages are XML documents. There are four classes of Transport
+message:
+
+\begin{itemize}
+\item{\texttt{iamalive} (Connection maintenance);}
+\item{\texttt{authenticate} (Authentication request/response);}
+\item{\texttt{ack} (VOEvent successful receipt acknowledgement);}
+\item{\texttt{nak} (VOEvent unsuccessful receipt acknowledgement).}
+\end{itemize}
+
+All Transport messages have the same general syntax, and are defined by the
+Transport schema (Appendix \ref{sec:transportschema}). The \texttt{role}
+attribute of the root \texttt{<Transport>} element distinguishes between the
+types listed above. The connection maintenance and receipt acknowledgement
+message types are described in detail in this section; the authentication
+message type has a special role which is described in Section
+\ref{sec:limit:crypto:subscriber}.
+
+\subsection{\texttt{iamalive} message}
+
+The \texttt{iamalive} message is indicated by a role equal to
+\texttt{iamalive}. The \texttt{<Origin>} element contains the IVORN of the
+broker which is managing the connection.  The \texttt{<TimeStamp>} element
+must contain the UTC date/time at which the message was generated.
+
+\begin{listing*}
+\begin{minted}[fontsize=\small,frame=lines]{xml}
+<?xml version="1.0" encoding="UTF-8"?>
+
+<trn:Transport role="iamalive" version="1.0"
+ xmlns:trn="http://telescope-networks.org/schema/Transport/v1.1"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xsi:schemaLocation="http://telescope-networks.org/schema/Transport/v1.1
+                     http://telescope-networks.org/schema/Transport-v1.1.xsd">
+    <Origin>ivo://uk.org.estar/estar.ex#</Origin>
+    <TimeStamp>2009-04-09T22:39:06</TimeStamp>
+</trn:Transport>
+\end{minted}
+\caption{Sample \texttt{iamalive} message.}
+\label{lst:testmessage}
+\end{listing*}
+
+
+\section{Limiting access}
+\label{sec:limit}
+
+\subsection{Cryptographic signatures}
+
+\subsubsection{Subscriber authentication}
+\label{sec:limit:crypto:subscriber}
+
+\appendix
+
+\section{Transport schema}
+\label{sec:transportschema}
+
+\bibliographystyle{elsarticle-harv}
+\bibliography{vtp}
 
 \end{document}

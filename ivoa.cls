@@ -2,6 +2,7 @@
 %% This is 'ivoa.cls' generated from standard `article.cls',
 %%
 %% Author: Sebastien Derriere: derriere at astro.u-strasbg.fr
+%% Minor modifications by John Swinbank: j.swinbank@uva.nl
 %%
 %% Copyright 1993 1994 1995 1996 1997 1998 1999 2000 2001
 %% The LaTeX3 Project and any individual authors listed elsewhere
@@ -43,7 +44,7 @@
 %%   Right brace   \}     Tilde         \~}
 \NeedsTeXFormat{LaTeX2e}[1995/12/01]
 \ProvidesClass{ivoa}[2003/10/01 v0.8 LaTeX document class for IVOA documents]
-\RequirePackage{color}
+\RequirePackage{xcolor}
 \RequirePackage{graphicx}
 \newcommand\@ptsize{}
 \RequirePackage{url}
@@ -411,7 +412,7 @@
 \newcommand\subsubsection{\@startsection{subsubsection}{3}{\z@}%
                                      {-3.25ex\@plus -1ex \@minus -.2ex}%
                                      {1.5ex \@plus .2ex}%
-                                     {\normalfont\normalsize\sffamily\bfseries}}
+                                     {\normalfont\normalsize\sffamily\bfseries\textcolor{ivoacolor}}}
 \newcommand\paragraph{\@startsection{paragraph}{4}{\z@}%
                                     {3.25ex \@plus1ex \@minus.2ex}%
                                     {-1em}%
