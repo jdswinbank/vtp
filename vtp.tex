@@ -275,9 +275,11 @@ message type has a special role which is described in Section
 \subsection{\texttt{iamalive} message}
 
 The \texttt{iamalive} message is indicated by a role equal to
-\texttt{iamalive}. The \texttt{<Origin>} element contains the IVORN of the
-broker which is managing the connection.  The \texttt{<TimeStamp>} element
-must contain the UTC date/time at which the message was generated.
+\texttt{iamalive}. The \texttt{<Origin>} element contains the
+IVORN\footnote{International Virtual Observatory Resource Name
+\citep{Plante:2007}.} of the broker which is managing the connection.  The
+\texttt{<TimeStamp>} element must contain the UTC date/time at which the
+message was generated.
 
 \begin{listing*}
 \begin{minted}[fontsize=\small,frame=lines]{xml}
@@ -293,8 +295,43 @@ must contain the UTC date/time at which the message was generated.
 </trn:Transport>
 \end{minted}
 \caption{Sample \texttt{iamalive} message.}
-\label{lst:testmessage}
+\label{lst:iamalive}
 \end{listing*}
+
+\subsection{\texttt{iamalive} response}
+
+The \texttt{iamalive} response is an extension of the initial iamalive
+message. It also has a role of \texttt{iamalive}. It must include an
+additional \texttt{<Response>} element containing the IVORN of the subscriber.
+It may include a \texttt{<Meta>} element with \texttt{<Param>} sub-elements
+which give additional information about the subscriber or any other relevant
+information. \texttt{<Param>} elements have no content and must contain name
+and value attributes. The names and values may be any string. The
+\texttt{<TimeStamp>} element contains the UTC date and time at which the
+response is sent.
+
+\begin{listing*}
+\begin{minted}[fontsize=\small,frame=lines]{xml}
+<?xml version='1.0' encoding='UTF-8'?>
+
+<trn:Transport role="iamalive" version="1.0"
+ xmlns:trn="http://telescope-networks.org/schema/Transport/v1.1"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xsi:schemaLocation="http://telescope-networks.org/schema/Transport/v1.1
+                     http://telescope-networks.org/schema/Transport-v1.1.xsd">
+    <Origin>ivo://uk.org.estar/estar.ex#</Origin>
+    <Response>ivo://com.dc3/engineering#</Response>
+    <TimeStamp>2009-04-09T22:39:07</TimeStamp>
+    <Meta>
+        <Param name="IPAddr" value="123.123.123.123" />
+        <Param name="Contact" value="rdenny@dc3.com" />
+    </Meta>
+</trn:Transport>
+\end{minted}
+\caption{Sample \texttt{iamalive} response.}
+\label{lst:iamaliveresponse}
+\end{listing*}
+
 
 
 \section{Limiting access}
