@@ -156,6 +156,7 @@ a result, the format of the document being transmitted is opaque to the
 transport layer. Therefore both ASCII and UTF-8 are equally supported}.
 
 \subsection{Message format}
+\label{sec:common:format}
 
 The payload of the a VTP message is an XML document. It must consist of an XML
 declaration followed by, in order, optional XML comments, a single VOEvent or
@@ -187,6 +188,7 @@ services they require. Brokers should clearly advertise any added-value
 behavior they provide, for example on a website or through the IVOA registry.
 
 \section{Node roles}
+\label{sec:noderoles}
 
 The VOEvent network consists of three types of nodes (refer to Fig.
 \ref{fig:network}):
@@ -332,7 +334,89 @@ response is sent.
 \label{lst:iamaliveresponse}
 \end{listing*}
 
+\subsection{VOEvent message receipt response}
 
+The VOEvent message receipt response is similar to the \texttt{iamalive}
+response except the role is either \texttt{ack} or \texttt{nak}, the
+\texttt{<Origin>} is the IVORN of the just-received VOEvent message, and an
+optional \texttt{<Result>} element may accompany the \texttt{<Param>}
+elements. \texttt{<Result>} may contain any string; it is recommended that it
+contain a human-readable error message if role is \texttt{nak}. The
+\texttt{<TimeStamp>} element contains the UTC date and time at which the
+response is sent.
+
+The \texttt{nak} response indicates that the recipient is unable or unwilling
+to take responsibility for this message. This may be because, for example, the
+message fails to validate as a valid VOEvent, or because it was received from
+an unauthorized client (\S\ref{sec:limit}). A \texttt{nak} response is not
+appropriate if the sender is able to accept the message but then decides not
+to redistribute it (for example, if it is a duplicate of an event which has
+already been distributed: Section \ref{sec:dedup}).
+
+\begin{listing*}
+\begin{minted}[fontsize=\small,frame=lines]{xml}
+<?xml version='1.0' encoding='UTF-8'?>
+
+<trn:Transport role="ack" version="1.0"
+ xmlns:trn="http://telescope-networks.org/schema/Transport/v1.1"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xsi:schemaLocation="http://telescope-networks.org/schema/Transport/v1.1
+                     http://telescope-networks.org/schema/Transport-v1.1.xsd">
+    <Origin>ivo://nvo.caltech/voeventnet/catot#901211380084129246</Origin>
+    <Response>ivo://com.dc3/engineering#</Response>
+    <TimeStamp>2009-04-09T22:54:01</TimeStamp>
+    <Meta>
+        <Param name="IPAddr" value="123.123.123.123" />
+        <Param name="Contact" value="rdenny@dc3.com" />
+        <Result>Message received and validated successfully</Result>
+    </Meta>
+</trn:Transport>
+\end{minted}
+\caption{Sample VOEvent message receipt response indicating successful
+transmission (\texttt{ack}).}
+\label{lst:ack}
+\end{listing*}
+
+\begin{listing*}
+\begin{minted}[fontsize=\small,frame=lines]{xml}
+<?xml version='1.0' encoding='UTF-8'?>
+
+<trn:Transport role="nak" version="1.0"
+ xmlns:trn="http://telescope-networks.org/schema/Transport/v1.1"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xsi:schemaLocation="http://telescope-networks.org/schema/Transport/v1.1
+                     http://telescope-networks.org/schema/Transport-v1.1.xsd">
+    <Origin>ivo://nvo.caltech/voeventnet/catot#901211380084129246</Origin>
+    <Response>ivo://com.dc3/engineering#</Response>
+    <TimeStamp>2009-04-09T22:54:01</TimeStamp>
+    <Meta>
+        <Param name="IPAddr" value="123.123.123.123" />
+        <Param name="Contact" value="rdenny@dc3.com" />
+        <Result>Error in VOEvent message: ISOTime not in ISO 8601 format</Result>
+    </Meta>
+</trn:Transport>
+\end{minted}
+\caption{Sample VOEvent message receipt response indicating unsuccessful
+transmission (\texttt{nak}).}
+\label{lst:nak}
+\end{listing*}
+
+\section{Protocol operation}
+
+This section describes the operation and sequencing of VTP operation for each
+end of a connection between an author and a broker, as well as between a
+broker and a subscriber. See Section \ref{sec:noderoles} above for a
+qualitative discussion of the protocol from the viewpoint of each entity. In
+the sections below, the ``message'' is the combination of the byte count and
+payload as described in Section \ref{sec:common:format} above.
+
+The protocol diagrams in the following sections depict layers between which
+are interfaces. Figure \ref{fig:architecture} shows the overall architecture
+of communication between authors, brokers, and subscribers. Each entity uses
+the transport layer to send and/or receive VOEvent messages.
+
+\section{De-duplication}
+\label{sec:dedup}
 
 \section{Limiting access}
 \label{sec:limit}
