@@ -4,6 +4,7 @@
 \usepackage{natbib}
 \usepackage{minted}
 \usepackage{graphicx}
+\usepackage{float}
 
 \title{VOEvent Transport Protocol}
 \author{Alasdair Allan, Robert B. Denny, John Swinbank}
@@ -132,6 +133,7 @@ Throughout this document, we adopt the terminology of RFC 2119
 \section{Common characteristics}
 
 \subsection{Design goals}
+\label{sec:common:design}
 
 The Transport Protocol, hereafter VTP, is provides a simple means of
 transporting VOEvents from authors through brokers to subscribers.
@@ -444,7 +446,7 @@ the transport layer to send and/or receive VOEvent messages.
 \subsection{Author sending to broker}
 \label{sec:protocol:authortobroker}
 
-\begin{figure}
+\begin{figure}[H]
   \begin{center}
   \includegraphics{figures/authortobroker.pdf}
   \end{center}
@@ -468,7 +470,7 @@ responsive action. See Figure \ref{fig:protocol:authortobroker} for details.
 
 \subsection{Broker receiving from author}
 
-\begin{figure}
+\begin{figure}[H]
   \begin{center}
   \includegraphics{figures/brokerfromauthor.pdf}
   \end{center}
@@ -492,7 +494,7 @@ message, and to create the \texttt{ack} or \texttt{nak} response
 
 \subsection{Broker sending to subscriber}
 
-\begin{figure}
+\begin{figure}[H]
   \begin{center}
   \includegraphics{figures/brokertosub.pdf}
   \end{center}
@@ -532,7 +534,7 @@ broker may remove the subscriber from its distribution list.
 \subsection{Subscriber receiving from broker}
 \label{sec:protocol:subfrombroker}
 
-\begin{figure}
+\begin{figure}[H]
   \begin{center}
   \includegraphics{figures/subfrombroker.pdf}
   \end{center}
@@ -693,6 +695,72 @@ occur as before.
 
 \section{Transport schema}
 \label{sec:transportschema}
+
+\begin{figure}[H]
+    \begin{center}
+    \includegraphics{figures/transport.pdf}
+    \end{center}
+
+    \caption{Graphical representation of transport schema.}
+    \label{fig:transport}
+\end{figure}
+
+\begin{minted}[fontsize=\small]{xml}
+<?xml version="1.0" encoding="utf-8" ?>
+<xs:schema xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema">
+ <xs:element name="Transport">
+  <xs:complexType>
+   <xs:sequence>
+    <xs:element minOccurs="1" name="Origin" type="xs:anyURI" />
+    <xs:element minOccurs="0" maxOccurs="1" name="Response" type="xs:anyURI" />
+    <xs:element minOccurs="1" name="TimeStamp" type="xs:dateTime" />
+    <xs:element minOccurs="0" maxOccurs="1" name="Meta">
+     <xs:complexType>
+      <xs:sequence minOccurs="1" maxOccurs="1">
+       <xs:element minOccurs="0" maxOccurs="unbounded" name="Param">
+        <xs:complexType>
+         <xs:attribute name="name" type="xs:string" use="required" />
+         <xs:attribute name="value" type="xs:string" use="required" />
+        </xs:complexType>
+       </xs:element>
+       <xs:element minOccurs="0" maxOccurs="1" name="Result" type="xs:string" />
+      </xs:sequence>
+     </xs:complexType>
+    </xs:element>
+   </xs:sequence>
+   <xs:attribute name="role" type="roleType" use="required" />
+   <xs:attribute name="version" type="xs:string" use="required" />
+  </xs:complexType>
+ </xs:element>
+ <xs:simpleType name="roleType">
+  <xs:restriction base="xs:string">
+   <xs:enumeration value="iamalive" />
+   <xs:enumeration value="authenticate" />
+   <xs:enumeration value="ack" />
+   <xs:enumeration value="nak" />
+  </xs:restriction>
+ </xs:simpleType>
+</xs:schema>
+\end{minted}
+
+\section{Version history}
+
+\subsection{Revised in v1.2}
+
+Version 1.2 adds two new sections to the document: Section
+\ref{sec:common:design}, outlining design goals of the protocol, and Section
+\ref{sec:dedup}, detailing requirements for message de-duplication to avoid
+network loops. In addition, it adds an explicit time requirement to connection
+maintenance packets (\S\ref{sec:maintenance}) and clarifies the semantics of
+\texttt{nak} transport messages (\S\ref{sec:transport:ack}).
+
+\subsection{Revised in v1.1}
+
+Version 1.1 adds an optional \texttt{<Result>} sub-element (containing text)
+within the optional \texttt{<Meta>} element. This is intended to convey
+details on errors encountered if the Transport response is \texttt{nak} but
+may also be used for informational purposes in \texttt{ack} messages.
 
 \bibliographystyle{elsarticle-harv}
 \bibliography{vtp}
