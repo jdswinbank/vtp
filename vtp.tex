@@ -239,6 +239,7 @@ subscriber receives a VOEvent message from its broker, it must respond with an
 appropriate Transport message.
 
 \subsection{Broker to Broker}
+\label{sec:node:brokertobroker}
 
 Traffic between brokers uses the preceding methods. Each broker takes the role
 subscriber as far as every other broker is concerned. A broker that wishes to
@@ -565,6 +566,34 @@ message (\S{sec:transport:ack}).
 
 \section{De-duplication}
 \label{sec:dedup}
+
+In a network topology like that illustrated in Figure \ref{fig:network},
+multiple brokers service independent sets of authors and subscribers. As per
+Sections \ref{sec:intro} and \ref{sec:node:brokertobroker}, brokers will
+subscribe to each other's event feeds to ensure that their subscribers have
+access to the full range of available events. In this way, in a complex
+VOEvent network, many brokers will form one or more strongly connected sets.
+
+In this situation, there is a risk of event loops developing on the network:
+broker A receives an event from B and forwards it to its subscriber list,
+which includes A, which forwards it to its subscriber lists, which includes B,
+and so on.
+
+In order to prevent this, each broker must process each unique event it
+receives a maximum of once. For this purpose, we regard ``unique'' as meaning
+that the content between the opening \texttt{<} and closing \texttt{>} of the
+\texttt{<VOEvent>} element is bit-for-bit identical, including all white space
+characters\footnote{The implementation of this check is at the discretion of
+the broker. Appropriate techniques may include directly comparing the
+bitstream (which would necessarily mean storing an archive of
+previously-processed events) or calculating a hash function such as SHA1
+\citep{Eastlake:2001} over the event contents and storing the result.}. Note
+that it is now established practice to distribute different serializations
+(e.g.  VOEvent 1.1 and 2.0) of the same event with the same
+IVORN\footnote{\url{http://www.ivoa.net/pipermail/voevent/2012-March/002836.html}
+and subsequent discussion.}.  Consequently, an IVORN is not a unique
+identifier of a particular event representation, and is not, therefore,
+suitable for use in network de-duplication.
 
 \section{Limiting access}
 \label{sec:limit}
