@@ -442,6 +442,7 @@ of communication between authors, brokers, and subscribers. Each entity uses
 the transport layer to send and/or receive VOEvent messages.
 
 \subsection{Author sending to broker}
+\label{sec:protocol:authortobroker}
 
 \begin{figure}
   \begin{center}
@@ -529,6 +530,7 @@ indicating success or failure to the broker; in the event of an error
 broker may remove the subscriber from its distribution list.
 
 \subsection{Subscriber receiving from broker}
+\label{sec:protocol:subfrombroker}
 
 \begin{figure}
   \begin{center}
@@ -598,17 +600,94 @@ suitable for use in network de-duplication.
 \section{Limiting access}
 \label{sec:limit}
 
+For administrative or security reasons, broker administrators may wish to
+limit access to the services they provide to a restricted range of clients.
+These restrictions may be required on either or both of the connection types
+in VTP: author to broker (i.e., a limit on which authors can publish through a
+given broker) or broker to subscriber (a limit on which subscribers a broker
+is willing to provide with event streams).
+
+Two mechanisms are available within the VTP system to address these
+requirements.
+
 \subsection{IP address whitelisting}
 \label{sec:limit:whitelist}
+
+If the broker knows a priori the IP addresses or ranges from which authorized
+authors or subscribers are permitted to connect (a ``whitelist''), it may
+simply deny connections from addresses which fall outside that range. If the
+sets of authorized authors and subscribers are not the same, separate
+whitelists may be implemented.
+
+This mechanism is simple and effective. However, it imposes significant
+administrative overhead on the broker owner if large and complex whitelists
+are required. Further, it is of limited applicability if the clients to be
+serviced are using dynamic IP addresses (that is, addresses which change
+periodically).
 
 \subsection{Cryptographic signatures}
 \label{sec:limit:crypto}
 
+A cryptographic signature can be used to verify the identity of the sender of
+a message. A simple and transparent means to digitally sign XML messages, with
+particular reference to VOEvent, has been developed to be compatible with the
+VTP system \citep{Denny:2008}. Brokers can use this scheme to check the
+identity of clients. The mechanism varies slightly depending on whether the
+client is an author or a subscriber.
+
 \subsubsection{Author submission}
 \label{sec:limit:crypto:author}
 
+Authors connect, send a VOEvent message, and then disconnect
+(\S\ref{sec:protocol:authortobroker}).  All that is needed is for the author
+to sign the VOEvent message being submitted. The broker's acceptance/rejection
+criteria include validating the signature. If that succeeds, the broker
+accepts the message and returns an \texttt{ack}. Otherwise, if the broker does
+not have the author's public key or if validation fails, the message is
+discarded and the broker returns a \texttt{nak}. A \texttt{<Result>} element
+may be included explaining that the signature validation failed: see Section
+\ref{sec:transport:ack}.
+
+The benefits of having authors sign their VOEvent messages extend beyond
+broker access control: the presence of a signature on an author's VOEvent
+message can be used by subscribers to guarantee the integrity of the message.
+Note, however, that the subscriber must not assume that brokers have checked
+all signatures on their behalf: if the subscriber requires that the event
+integrity be verified, they must check the signature themselves.
+
 \subsubsection{Subscriber authentication}
 \label{sec:limit:crypto:subscriber}
+
+Subscribers do not send VOEvent messages to the broker
+(\S\ref{sec:protocol:subfrombroker}). To accommodate subscriber authentication
+using a signed message, the broker sends a Transport \texttt{authenticate}
+message (see the example in Listing \ref{lst:authenticate}) to the subscriber
+immediately after the subscriber connects. The subscriber returns a digitally
+signed \texttt{authenticate} response, with which the broker authenticates the
+subscriber as before. If the authentication succeeds, the broker leaves the
+TCP connection open and begins to deliver VOEvent messages to the subscriber.
+If the authentication fails, the broker simply closes the TCP connection.
+There is no need for the subscriber to digitally sign subsequent
+\texttt{iamalive} responses as long as the TCP connection remains open. If the
+connection is lost, forcing a reconnect, the authentication exchange will
+occur as before.
+
+\begin{listing*}
+\begin{minted}[fontsize=\small,frame=lines]{xml}
+<?xml version="1.0" encoding="UTF-8"?>
+
+<trn:Transport role="authenticate" version="1.0"
+ xmlns:trn="http://telescope-networks.org/schema/Transport/v1.1"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xsi:schemaLocation="http://telescope-networks.org/schema/Transport/v1.1
+                     http://telescope-networks.org/schema/Transport-v1.1.xsd">
+    <Origin>ivo://uk.org.estar/estar.ex#</Origin>
+    <TimeStamp>2009-04-09T22:39:06</TimeStamp>
+</trn:Transport>
+\end{minted}
+\caption{Sample \texttt{authenticate} message.}
+\label{lst:authenticate}
+\end{listing*}
 
 \appendix
 
