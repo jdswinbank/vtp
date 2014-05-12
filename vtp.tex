@@ -9,7 +9,7 @@
 \title{VOEvent Transport Protocol}
 \author{Alasdair Allan, Robert B. Denny, John Swinbank}
 \editor{John Swinbank}
-\ivoatype{IVOA Proposed Recommendadation}
+\ivoatype{IVOA Note}
 \ivoagroup{Time Domain Interest Group}
 \version{1.2 (draft)}
 
@@ -20,7 +20,7 @@
 \section*{Abstract}
 
 The IVOA VOEvent Recommendation \citep{Seaman:2011} defines a means of
-describing a transient celestial event but, purposely, remains silent on the
+describing transient celestial events but, purposely, remains silent on the
 topic of how those descriptions should be transmitted. This document
 formalizes a TCP-based protocol for VOEvent transportation that has been in
 use by members of the VOEvent community for several years and discusses the
@@ -67,13 +67,14 @@ Investigator Grant 247295.
   \includegraphics{figures/network.pdf}
   \end{center}
 
-  \caption{VOEvent network architecture showing node roles.}
+  \caption{VOEvent distribution system architecture showing the relationshops
+  between the various network roles.}
 
   \label{fig:network}
 \end{figure}
 
-The VOEvent standard \citep{Seaman:2011} defines a means of representing a
-transient celestial event with an implicit request for action on the part of
+The VOEvent standard \citep{Seaman:2011} defines a means of representing
+transient celestial events with an implicit request for action on the part of
 the recipient. The VOEvent standard is transport neutral: it does not take a
 position on the mechanism by which the event should be transmitted from its
 author to interested recipients. However, it encourages the construction of
@@ -90,7 +91,7 @@ LOFAR\footnote{Low Frequency Array; \url{http://www.lofar.org}} and
 SKA\footnote{Square Kilometer Array; \url{http://www.ska-telescope.org/}} are
 developed and begin to become available, it is clear that a standard,
 interoperable mechanism for event communication is required. It is such a
-mechanism that this document aims to describe.
+mechanism that this document describes.
 
 The purpose of the protocol described herein is to transport a VOEvent message
 from its sender to one or more interested recipients. To achieve this, we
@@ -107,16 +108,17 @@ Building upon this architecture, a strongly-connected set of brokers which
 subscriber to each other's event streams and redistribute to their subscribers
 (the ``VOEventNet backbone'') provides a fault-tolerant system which is
 resilient against the failure of one or more network entities. Such a backbone
-system is already under construction by members of the VOEvent community.  The
-protocol described herein is intentionally as simple as possible while still
-accomplishing the required task. There are some value-added VOEvent services
-being developed which may require more complex protocols, but these fall
-outside the scope of the current document.
+system is already under construction by members of the VOEvent community.
+
+The protocol described herein is intentionally as simple as possible while
+still accomplishing the required task. There are some value-added VOEvent
+services being developed that may require more complex protocols, but these
+fall outside the scope of the current document.
 
 \section{Terminology}
 
 Throughout this document, we adopt the terminology of RFC 2119
-\citep{Bradner:1997}. In particular, note that:
+\citep{Bradner:1997}. In particular:
 
 \begin{itemize}
     \item{The word ``must'' indicates an absolute requirement of the
@@ -135,20 +137,20 @@ Throughout this document, we adopt the terminology of RFC 2119
 \subsection{Design goals}
 \label{sec:common:design}
 
-The Transport Protocol, hereafter VTP, is provides a simple means of
-transporting VOEvents from authors through brokers to subscribers.
+The Transport Protocol, hereafter VTP, provides a simple means of transporting
+VOEvent documents from authors through brokers to subscribers.
 
-VTP transmits a up to single VOEvent message in each transaction. If multiple
-VOEvent messages are to be transmitted, multiple transactions must take place.
+VTP transmits no more than one VOEvent in each transaction. If multiple
+documents are to be transmitted, multiple transactions must take place.
 
-VTP is non-transformational on VOEvents being transmitted: the message
+VTP is non-transformational on VOEvents being transmitted: the document
 delivered to a subscriber should be bit-for-bit identical to that provided by
-an author. If an intermediary wishes to modify or annotate the event, they
-should not edit the event in transport, but rather generate a new event to
-supplement or replace it.
+an author. If an intermediary wishes to modify or annotate the VOEvent, they
+should not edit the document in transport, but rather generate a new document
+to supplement or replace it.
 
 VTP does not provide a transport-level means of annotating or otherwise
-embellishing VOEvents, or of providing stream-level metadata.
+embellishing VOEvent documents, or of providing stream-level metadata.
 
 VTP values simplicity of design and operation to lower the barrier to entry. It
 is not intended to meet every use case. As per Section \ref{sec:intro}, it is
@@ -157,39 +159,40 @@ protocols.
 
 \subsection{Network layer}
 
-VTP operates over TCP (Information Sciences Institute, 1981) connections, and
-relies on TCP's guaranteed error-free in-order delivery of data: no checksum
-or digest data is included. All messages are sent over the TCP connection
-preceded by a 4-byte network-ordered\footnote{As defined by
-\citet{Reynolds:1994}; also called ``big-endian'' ordering.} count, followed
-immediately by the payload data. The 4-byte count is interpreted as a 32-bit
-integer equal to the number of payload bytes following the count bytes. The
-payload is considered an opaque collection of bytes at this level\footnote{As
-a result, the format of the document being transmitted is opaque to the
-transport layer. Therefore both ASCII and UTF-8 are equally supported}.
+VTP operates over TCP \citep{Cerf:1974} connections, and relies on TCP's
+guaranteed error-free in-order delivery of data: no checksum or digest data is
+included. All messages are sent over the TCP connection preceded by a 4-byte
+network-ordered\footnote{As defined by \citet{Reynolds:1994}; also called
+``big-endian'' ordering.} count, followed immediately by the payload data. The
+4-byte count is interpreted as a 32-bit integer equal to the number of payload
+bytes following the count bytes. The payload is considered an opaque
+collection of bytes at this level\footnote{As a result, the format of the
+document being transmitted is opaque to the transport layer. Therefore both
+ASCII and UTF-8 are equally supported}.
 
 \subsection{Message format}
 \label{sec:common:format}
 
-The payload of the a VTP message is an XML document. It must consist of an XML
-declaration followed by, in order, optional XML comments, a single VOEvent or
-Transport element, and more optional XML comments. It must validate against
-either the VOEvent XML
+The payload of a VTP message is an XML document. It must consist of an XML
+declaration followed by, in order, optional XML comments, a single
+\texttt{<VOEvent~/>} or \texttt{<Transport~/>} element, and more optional XML
+comments. It must validate against either the VOEvent XML
 schema\footnote{\url{http://www.ivoa.net/xml/VOEvent/VOEvent-v2.0.xsd}} or the
-Transport XML schema (Appendix \ref{sec:transportschema}). Transport elements
-are used by the VTP system itself and are invisible to end-users: see Section
-\ref{sec:transport} for details.
+Transport XML schema (Appendix \ref{sec:transportschema}).
+\texttt{<Transport~/>} elements are used by the VTP system itself and are
+invisible to end-users: see Section \ref{sec:transport} for details.
 
 \subsection{Broker behaviour}
+\label{sec:common:broker}
 
 Although the simplest broker implementation may simply forward all unique
 events it receives, either directly from authors or from other brokers, to all
 of its subscribers, this behavior is not required. Instead, the broker may
-provide ``value-added'' services which limit how messages are redistributed.
+provide ``added-value'' services which limit how messages are redistributed.
 For example, a broker may make arrangements with some or all of its
-subscribers to filter the events it receives, and only forward those events
-fulfilling some predefined criteria to its subscribers. Similarly, brokers may
-limit access to some clients based on various criteria (\S\ref{sec:limit}).
+subscribers to filter the events it receives, and forwarding only those events
+that fulfil some predefined criteria. Similarly, brokers may limit access to
+some clients based on various criteria (\S\ref{sec:limit}).
 
 VTP does not provide in-band notification of these per-broker details. For
 example, the protocol does not make an author submitting to a filtering broker
@@ -224,21 +227,24 @@ Each type of connection is discussed qualitatively below.
 
 \subsection{Author to Broker}
 
-When an author wants to submit a VOEvent message to the network, it opens a
+When an author wants to submit a VOEvent document to the network, it
+constructs a message containing that document (a ``VOEvent message''), opens a
 TCP connection to a broker, sends the message, waits for a response from the
 broker, and then closes the TCP connection. The response from the broker is a
-Transport message.
+message containing a Transport document.
 
 \subsection{Broker to Subscriber}
 
-When a subscriber wants to receive VOEvent message traffic, it opens a TCP
-connection to a broker. This connection is kept open continuously. When the
-broker receives a message, it relays a copy of the VOEvent message to all of
-the connected subscribers. Thus, a subscriber must continuously listen on the
-TCP connection and be prepared to receive VOEvent messages at any time, even
-when it is busy processing a previously received VOEvent message. When a
-subscriber receives a VOEvent message from its broker, it must respond with an
-appropriate Transport message.
+When a subscriber wants to receive VOEvent traffic, it opens a TCP connection
+to a broker. This connection is kept open continuously. When the broker
+receives a VOEvent message, it relays a copy of that message to each connected
+subscriber\footnote{If filtering as described in \S\ref{sec:common:broker} is
+being carried out, the message may be sent only to a subset of the
+subscribers.}.  Thus, a subscriber must continuously listen on the TCP
+connection and be prepared to receive new messages at any time, even when it
+is busy processing a previously received message. When a subscriber receives a
+VOEvent message from its broker, it must respond with an appropriate Transport
+message.
 
 \subsection{Broker to Broker}
 \label{sec:node:brokertobroker}
@@ -252,27 +258,31 @@ port. No special protocol features are needed.
 \label{sec:maintenance}
 
 All connections over which a broker sends VOEvent messages are kept open
-continuously. Basic TCP does not provide any dead-peer indication\footnote{
-TCP does support a ``keep-alive'' service, but it is not universally available
-\citep{Braden:1989}.}. Further, network infrastructure devices might sever a
-TCP connection after some period of inactivity. This gives rise to the need
-for keep-alive messages. After no more than 90 seconds of inactivity on any
-given connection, the broker must send a Transport \texttt{iamalive} message,
-to which the subscriber must reply with a copy of that message plus some
-optional identification information. For details of the message format, see
-Section \ref{sec:transport}.  At both ends of the continuous connection, the
-node either expects to receive an \texttt{iamalive} message or expects to
-receive the response to its \texttt{iamalive} message. If not seen, the node
-should assume that the connection has been lost or the peer is dead. At this
-point, the node that was responsible for opening the connection may attempt to
-re-initiate it. A geometric back-off algorithm may be used to avoid network
-load.
+continuously. However, basic TCP does not provide any dead-peer
+indication\footnote{ TCP does support a ``keep-alive'' service, but it is not
+universally available \citep{Braden:1989}.}. Further, network infrastructure
+devices might sever a TCP connection after some period of inactivity. This
+gives rise to the need for keep-alive messages. After no more than 90 seconds
+of inactivity on any given connection, the broker must send a Transport
+\texttt{iamalive} message, to which the subscriber must reply with a copy of
+that message plus some optional identification information. The message format
+is described in Sections \ref{sec:transport:iamalive} and
+\ref{sec:transport:iamaliveresponse}.
+
+At both ends of the continuous connection, the node either expects to receive
+an \texttt{iamalive} message or expects to receive the response to its
+\texttt{iamalive} message. If not seen, the node should assume that the
+connection has been lost or the peer is dead. At this point, the node that was
+responsible for opening the connection may attempt to re-initiate it. The use
+of geometric back-off algorithm may help alleviate network load.
 
 \section{Transport messages}
 \label{sec:transport}
 
-Transport messages are XML documents. There are four classes of Transport
-message:
+``Transport messages'' messages are VTP messages \S\ref{sec:common:format}
+containg a \texttt{<Transport~/>} element. There are four classes of
+\texttt{<Transport~/>} element, distinguished by their \texttt{role}
+attribute:
 
 \begin{itemize}
 \item{\texttt{iamalive} (Connection maintenance);}
@@ -282,22 +292,21 @@ message:
 \end{itemize}
 
 All Transport messages have the same general syntax, and are defined by the
-Transport schema (Appendix \ref{sec:transportschema}). The \texttt{role}
-attribute of the root \texttt{<Transport>} element distinguishes between the
-types listed above. The connection maintenance and receipt acknowledgement
-message types are described in detail in this section; the authentication
-message type has a special role which is described in Section
-\ref{sec:limit:crypto:subscriber}.
+Transport schema (Appendix \ref{sec:transportschema}). The connection
+maintenance and receipt acknowledgement message types are described in detail
+in this section; the authentication message type has a special role which is
+described in Section \ref{sec:limit:crypto:subscriber}.
 
 \subsection{\texttt{iamalive} message}
 \label{sec:transport:iamalive}
 
 The \texttt{iamalive} message is indicated by a role equal to
-\texttt{iamalive}. The \texttt{<Origin>} element contains the
+\texttt{iamalive}. The \texttt{<Origin~/>} element contains the
 IVORN\footnote{International Virtual Observatory Resource Name
-\citep{Plante:2007}.} of the broker which is managing the connection.  The
-\texttt{<TimeStamp>} element must contain the UTC date/time at which the
-message was generated.
+\citep{Plante:2007}.} of the broker which is managing the connection. The
+\texttt{<TimeStamp~/>} element contains the date and time at which the message
+was generated formatted as per \S3.3.7 of \citet{Peterson:2012}. This should
+normally include a timezone; if one is omitted, UTC may be assumed.
 
 \begin{listing*}
 \begin{minted}[fontsize=\small,frame=lines]{xml}
@@ -309,7 +318,7 @@ message was generated.
  xsi:schemaLocation="http://telescope-networks.org/schema/Transport/v1.1
                      http://telescope-networks.org/schema/Transport-v1.1.xsd">
     <Origin>ivo://uk.org.estar/estar.ex#</Origin>
-    <TimeStamp>2009-04-09T22:39:06</TimeStamp>
+    <TimeStamp>2009-04-09T22:39:06Z</TimeStamp>
 </trn:Transport>
 \end{minted}
 \caption{Sample \texttt{iamalive} message.}
@@ -321,13 +330,15 @@ message was generated.
 
 The \texttt{iamalive} response is an extension of the initial iamalive
 message. It also has a role of \texttt{iamalive}. It must include an
-additional \texttt{<Response>} element containing the IVORN of the subscriber.
-It may include a \texttt{<Meta>} element with \texttt{<Param>} sub-elements
-which give additional information about the subscriber or any other relevant
-information. \texttt{<Param>} elements have no content and must contain name
-and value attributes. The names and values may be any string. The
-\texttt{<TimeStamp>} element contains the UTC date and time at which the
-response is sent.
+additional \texttt{<Response~/>} element containing the IVORN of the
+subscriber.  It may include a \texttt{<Meta~/>} element with
+\texttt{<Param~/>} sub-elements which give additional information about the
+subscriber or any other relevant information. \texttt{<Param~/>} elements have
+no content and must contain name and value attributes. The names and values
+may be any string. The \texttt{<TimeStamp~/>} element contains the date and
+time at which the response was generated, formatted as per \S3.3.7 of
+\citet{Peterson:2012}. This should normally include a timezone; if one is
+omitted, UTC may be assumed.
 
 \begin{listing*}
 \begin{minted}[fontsize=\small,frame=lines]{xml}
@@ -340,7 +351,7 @@ response is sent.
                      http://telescope-networks.org/schema/Transport-v1.1.xsd">
     <Origin>ivo://uk.org.estar/estar.ex#</Origin>
     <Response>ivo://com.dc3/engineering#</Response>
-    <TimeStamp>2009-04-09T22:39:07</TimeStamp>
+    <TimeStamp>2009-04-09T22:39:07Z</TimeStamp>
     <Meta>
         <Param name="IPAddr" value="123.123.123.123" />
         <Param name="Contact" value="rdenny@dc3.com" />
@@ -356,12 +367,14 @@ response is sent.
 
 The VOEvent message receipt response is similar to the \texttt{iamalive}
 response except the role is either \texttt{ack} or \texttt{nak}, the
-\texttt{<Origin>} is the IVORN of the just-received VOEvent message, and an
-optional \texttt{<Result>} element may accompany the \texttt{<Param>}
-elements. \texttt{<Result>} may contain any string; it is recommended that it
-contain a human-readable error message if role is \texttt{nak}. The
-\texttt{<TimeStamp>} element contains the UTC date and time at which the
-response is sent.
+\texttt{<Origin~/>} is the IVORN of the just-received VOEvent message, and an
+optional \texttt{<Result~/>} element may accompany the \texttt{<Param~/>}
+elements. \texttt{<Result~/>} may contain any string; it is recommended that
+it contain a human-readable error message if role is \texttt{nak}. The
+\texttt{<TimeStamp~/>} element contains the date and time at which the
+response was generated, formatted as per \S3.3.7 of \citet{Peterson:2012}.
+This should normally include a timezone; if one is omitted, UTC may be
+assumed.
 
 The \texttt{nak} response indicates that the recipient is unable or unwilling
 to take responsibility for this message. This may be because, for example, the
@@ -382,7 +395,7 @@ already been distributed: Section \ref{sec:dedup}).
                      http://telescope-networks.org/schema/Transport-v1.1.xsd">
     <Origin>ivo://nvo.caltech/voeventnet/catot#901211380084129246</Origin>
     <Response>ivo://com.dc3/engineering#</Response>
-    <TimeStamp>2009-04-09T22:54:01</TimeStamp>
+    <TimeStamp>2009-04-09T22:54:01Z</TimeStamp>
     <Meta>
         <Param name="IPAddr" value="123.123.123.123" />
         <Param name="Contact" value="rdenny@dc3.com" />
@@ -586,10 +599,10 @@ and so on.
 In order to prevent this, each broker must process each unique event it
 receives a maximum of once. For this purpose, we regard ``unique'' as meaning
 that the content between the opening \texttt{<} and closing \texttt{>} of the
-\texttt{<VOEvent>} element is bit-for-bit identical, including all white space
-characters\footnote{The implementation of this check is at the discretion of
-the broker. Appropriate techniques may include directly comparing the
-bitstream (which would necessarily mean storing an archive of
+\texttt{<VOEvent~/>} element is bit-for-bit identical, including all white
+space characters\footnote{The implementation of this check is at the
+discretion of the broker. Appropriate techniques may include directly
+comparing the bitstream (which would necessarily mean storing an archive of
 previously-processed events) or calculating a hash function such as SHA1
 \citep{Eastlake:2001} over the event contents and storing the result.}. Note
 that it is now established practice to distribute different serializations
@@ -646,7 +659,7 @@ to sign the VOEvent message being submitted. The broker's acceptance/rejection
 criteria include validating the signature. If that succeeds, the broker
 accepts the message and returns an \texttt{ack}. Otherwise, if the broker does
 not have the author's public key or if validation fails, the message is
-discarded and the broker returns a \texttt{nak}. A \texttt{<Result>} element
+discarded and the broker returns a \texttt{nak}. A \texttt{<Result~/>} element
 may be included explaining that the signature validation failed: see Section
 \ref{sec:transport:ack}.
 
@@ -748,17 +761,29 @@ occur as before.
 
 \subsection{Revised in v1.2}
 
-Version 1.2 adds two new sections to the document: Section
-\ref{sec:common:design}, outlining design goals of the protocol, and Section
-\ref{sec:dedup}, detailing requirements for message de-duplication to avoid
-network loops. In addition, it adds an explicit time requirement to connection
-maintenance packets (\S\ref{sec:maintenance}) and clarifies the semantics of
-\texttt{nak} transport messages (\S\ref{sec:transport:ack}).
+\begin{itemize}
+    \item{Add Section \ref{sec:common:design}, describing design goals of the
+    protocol.}
+
+    \item{Add Section \ref{sec:dedup}, detailing requirements for message
+    de-duplication to avoid network loops.}
+
+    \item{Specify an explicit interval requirement to connection maintenance
+    messages (\S\ref{sec:maintenance}).}
+
+    \item{Clarify the semantics of \texttt{nak} transport messages
+    (\S\ref{sec:transport:ack}).}
+
+    \item{Allow timezone specification in \texttt{iamalive}
+    \texttt{<TimeStamp~/>} elements (\S\S\ref{sec:transport:iamalive},
+    \ref{sec:transport:iamaliveresponse}, \ref{sec:transport:ack}).}
+
+\end{itemize}
 
 \subsection{Revised in v1.1}
 
-Version 1.1 adds an optional \texttt{<Result>} sub-element (containing text)
-within the optional \texttt{<Meta>} element. This is intended to convey
+Version 1.1 adds an optional \texttt{<Result~/>} sub-element (containing text)
+within the optional \texttt{<Meta~/>} element. This is intended to convey
 details on errors encountered if the Transport response is \texttt{nak} but
 may also be used for informational purposes in \texttt{ack} messages.
 
