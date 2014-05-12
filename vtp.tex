@@ -317,8 +317,8 @@ normally include a timezone; if one is omitted, UTC may be assumed.
  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
  xsi:schemaLocation="http://telescope-networks.org/schema/Transport/v1.1
                      http://telescope-networks.org/schema/Transport-v1.1.xsd">
-    <Origin>ivo://uk.org.estar/estar.ex#</Origin>
-    <TimeStamp>2009-04-09T22:39:06Z</TimeStamp>
+    <Origin>ivo://invalid.broker/example#</Origin>
+    <TimeStamp>2001-01-01T00:00:00Z</TimeStamp>
 </trn:Transport>
 \end{minted}
 \caption{Sample \texttt{iamalive} message.}
@@ -349,12 +349,12 @@ omitted, UTC may be assumed.
  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
  xsi:schemaLocation="http://telescope-networks.org/schema/Transport/v1.1
                      http://telescope-networks.org/schema/Transport-v1.1.xsd">
-    <Origin>ivo://uk.org.estar/estar.ex#</Origin>
-    <Response>ivo://com.dc3/engineering#</Response>
-    <TimeStamp>2009-04-09T22:39:07Z</TimeStamp>
+    <Origin>ivo://invalid.broker/example#</Origin>
+    <Response>ivo://invalid.subscriber/example#</Response>
+    <TimeStamp>2001-01-01T00:00:00Z</TimeStamp>
     <Meta>
-        <Param name="IPAddr" value="123.123.123.123" />
-        <Param name="Contact" value="rdenny@dc3.com" />
+        <Param name="IPAddr" value="10.0.0.0" />
+        <Param name="Contact" value="name@subscriber.invalid" />
     </Meta>
 </trn:Transport>
 \end{minted}
@@ -393,12 +393,12 @@ already been distributed: Section \ref{sec:dedup}).
  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
  xsi:schemaLocation="http://telescope-networks.org/schema/Transport/v1.1
                      http://telescope-networks.org/schema/Transport-v1.1.xsd">
-    <Origin>ivo://nvo.caltech/voeventnet/catot#901211380084129246</Origin>
-    <Response>ivo://com.dc3/engineering#</Response>
-    <TimeStamp>2009-04-09T22:54:01Z</TimeStamp>
+    <Origin>ivo://invalid.author/example#0123456789</Origin>
+    <Response>ivo://invalid.broker/example#</Response>
+    <TimeStamp>2001-01-01T00:00:00Z</TimeStamp>
     <Meta>
-        <Param name="IPAddr" value="123.123.123.123" />
-        <Param name="Contact" value="rdenny@dc3.com" />
+        <Param name="IPAddr" value="10.0.0.0" />
+        <Param name="Contact" value="name@broker.invalid" />
         <Result>Message received and validated successfully</Result>
     </Meta>
 </trn:Transport>
@@ -417,12 +417,12 @@ transmission (\texttt{ack}).}
  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
  xsi:schemaLocation="http://telescope-networks.org/schema/Transport/v1.1
                      http://telescope-networks.org/schema/Transport-v1.1.xsd">
-    <Origin>ivo://nvo.caltech/voeventnet/catot#901211380084129246</Origin>
-    <Response>ivo://com.dc3/engineering#</Response>
-    <TimeStamp>2009-04-09T22:54:01</TimeStamp>
+    <Origin>ivo://invalid.author/example#0123456789</Origin>
+    <Response>ivo://invalid.broker/example#</Response>
+    <TimeStamp>2001-01-01T00:00:00Z</TimeStamp>
     <Meta>
-        <Param name="IPAddr" value="123.123.123.123" />
-        <Param name="Contact" value="rdenny@dc3.com" />
+        <Param name="IPAddr" value="10.0.0.0" />
+        <Param name="Contact" value="name@broker.invalid" />
         <Result>Error in VOEvent message: ISOTime not in ISO 8601 format</Result>
     </Meta>
 </trn:Transport>
@@ -696,8 +696,8 @@ occur as before.
  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
  xsi:schemaLocation="http://telescope-networks.org/schema/Transport/v1.1
                      http://telescope-networks.org/schema/Transport-v1.1.xsd">
-    <Origin>ivo://uk.org.estar/estar.ex#</Origin>
-    <TimeStamp>2009-04-09T22:39:06</TimeStamp>
+    <Origin>ivo://invalid.broker/example#</Origin>
+    <TimeStamp>2001-01-01T00:00:00Z</TimeStamp>
 </trn:Transport>
 \end{minted}
 \caption{Sample \texttt{authenticate} message.}
@@ -778,6 +778,9 @@ occur as before.
     \texttt{<TimeStamp~/>} elements (\S\S\ref{sec:transport:iamalive},
     \ref{sec:transport:iamaliveresponse}, \ref{sec:transport:ack}).}
 
+    \item{Remove identifying information from example XML documents
+    (\S\S\ref{sec:transport:iamalive}, \ref{sec:transport:iamaliveresponse},
+    \ref{sec:transport:ack}, \ref{sec:limit:crypto:subscriber}).}
 \end{itemize}
 
 \subsection{Revised in v1.1}
