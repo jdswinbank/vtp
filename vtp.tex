@@ -93,16 +93,16 @@ developed and begin to become available, it is clear that a standard,
 interoperable mechanism for event communication is required. It is such a
 mechanism that this document describes.
 
-The purpose of the protocol described herein is to transport a VOEvent message
-from its sender to one or more interested recipients. To achieve this, we
-envision three distinct network roles: authors, which create events; brokers,
-which receive events from authors and distribute them, and subscribers, which
-receive and (if appropriate) act upon the events. See Figure \ref{fig:network}
-for an illustration. Note that a single entity may perform more than one role
-within the network: for example, creating events and distributing its own
-creations (combining the author and broker roles) or receiving events from a
-broker and redistributing them to a list of subscribers (combining the
-subscriber and broker roles).
+The purpose of the protocol described herein is to transport a VOEvent
+document from its sender to one or more interested recipients. To achieve
+this, we envision three distinct network roles: authors, which create events;
+brokers, which receive events from authors and distribute them, and
+subscribers, which receive and (if appropriate) act upon the events. See
+Figure \ref{fig:network} for an illustration. Note that a single entity may
+perform more than one role within the network: for example, creating events
+and distributing its own creations (combining the author and broker roles) or
+receiving events from a broker and redistributing them to a list of
+subscribers (combining the subscriber and broker roles).
 
 Building upon this architecture, a strongly-connected set of brokers which
 subscriber to each other's event streams and redistribute to their subscribers
@@ -161,7 +161,7 @@ protocols.
 
 VTP operates over TCP \citep{Cerf:1974} connections, and relies on TCP's
 guaranteed error-free in-order delivery of data: no checksum or digest data is
-included. All messages are sent over the TCP connection preceded by a 4-byte
+included. All documents are sent over the TCP connection preceded by a 4-byte
 network-ordered\footnote{As defined by \citet{Reynolds:1994}; also called
 ``big-endian'' ordering.} count, followed immediately by the payload data. The
 4-byte count is interpreted as a 32-bit integer equal to the number of payload
@@ -173,14 +173,18 @@ ASCII and UTF-8 are equally supported}.
 \subsection{Message format}
 \label{sec:common:format}
 
-The payload of a VTP message is an XML document. It must consist of an XML
-declaration followed by, in order, optional XML comments, a single
-\texttt{<VOEvent~/>} or \texttt{<Transport~/>} element, and more optional XML
-comments. It must validate against either the VOEvent XML
+Throughout this document, the term ``message'' refers to a complete VTP
+message, including both the initial byte count and the message payload.  The
+payload is an XML document. It must consist of an XML declaration followed by,
+in order, optional XML comments, a single \texttt{<VOEvent~/>} or
+\texttt{<Transport~/>}\footnote{ \texttt{<Transport~/>} elements are used by
+the VTP system itself and are invisible to end-users: see Section
+\ref{sec:transport} for details.} element, and more optional XML comments. It
+must validate against either the VOEvent XML
 schema\footnote{\url{http://www.ivoa.net/xml/VOEvent/VOEvent-v2.0.xsd}} or the
-Transport XML schema (Appendix \ref{sec:transportschema}).
-\texttt{<Transport~/>} elements are used by the VTP system itself and are
-invisible to end-users: see Section \ref{sec:transport} for details.
+Transport XML schema (Appendix \ref{sec:transportschema}). Messages may be
+conveniently referred to by their payload type (viz. ``VOEvent message'',
+``Transport message'').
 
 \subsection{Broker behaviour}
 \label{sec:common:broker}
@@ -228,10 +232,10 @@ Each type of connection is discussed qualitatively below.
 \subsection{Author to Broker}
 
 When an author wants to submit a VOEvent document to the network, it
-constructs a message containing that document (a ``VOEvent message''), opens a
-TCP connection to a broker, sends the message, waits for a response from the
-broker, and then closes the TCP connection. The response from the broker is a
-message containing a Transport document.
+constructs a message encapsulating that document, opens a TCP connection to a
+broker, sends the message, waits for a response from the broker, and then
+closes the TCP connection. The response from the broker is a message
+containing a Transport document.
 
 \subsection{Broker to Subscriber}
 
@@ -279,8 +283,8 @@ of geometric back-off algorithm may help alleviate network load.
 \section{Transport messages}
 \label{sec:transport}
 
-``Transport messages'' messages are VTP messages \S\ref{sec:common:format}
-containg a \texttt{<Transport~/>} element. There are four classes of
+Transport messages are VTP messages \S\ref{sec:common:format} containg a
+\texttt{<Transport~/>} element. There are four classes of
 \texttt{<Transport~/>} element, distinguished by their \texttt{role}
 attribute:
 
@@ -434,7 +438,7 @@ transmission (\texttt{nak}).}
 
 \section{Protocol operation}
 
-\begin{figure}
+\begin{figure}[H]
   \begin{center}
   \includegraphics{figures/architecture.pdf}
   \end{center}
@@ -447,9 +451,7 @@ transmission (\texttt{nak}).}
 This section describes the operation and sequencing of VTP operation for each
 end of a connection between an author and a broker, as well as between a
 broker and a subscriber. See Section \ref{sec:noderoles} above for a
-qualitative discussion of the protocol from the viewpoint of each entity. In
-the sections below, the ``message'' is the combination of the byte count and
-payload as described in Section \ref{sec:common:format} above.
+qualitative discussion of the protocol from the viewpoint of each entity.
 
 The protocol diagrams in the following sections depict layers between which
 are interfaces. Figure \ref{fig:architecture} shows the overall architecture
