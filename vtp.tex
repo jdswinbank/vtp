@@ -67,7 +67,7 @@ Investigator Grant 247295.
   \includegraphics{figures/network.pdf}
   \end{center}
 
-  \caption{VOEvent distribution system architecture showing the relationshops
+  \caption{VOEvent distribution system architecture showing the relationships
   between the various network roles.}
 
   \label{fig:network}
@@ -124,11 +124,11 @@ Throughout this document, we adopt the terminology of RFC 2119
     \item{The word ``must'' indicates an absolute requirement of the
     specification;}
 
-    \item{The word ``should'' indicates behavior that is normally included in
+    \item{The word ``should'' indicates behaviour that is normally included in
     implementations of the specification, but there may exist valid reasons
     for excluding it in particular circumstances;}
 
-    \item{The word ``may'' indicates purely optional behavior which is
+    \item{The word ``may'' indicates purely optional behaviour which is
     permitted according to this specification.}
 \end{itemize}
 
@@ -191,7 +191,7 @@ conveniently referred to by their payload type (viz. ``VOEvent message'',
 
 Although the simplest broker implementation may simply forward all unique
 events it receives, either directly from authors or from other brokers, to all
-of its subscribers, this behavior is not required. Instead, the broker may
+of its subscribers, this behaviour is not required. Instead, the broker may
 provide ``added-value'' services which limit how messages are redistributed.
 For example, a broker may make arrangements with some or all of its
 subscribers to filter the events it receives, and forwarding only those events
@@ -205,7 +205,7 @@ and, similarly, it does not make a subscriber of a filtering broker aware that
 they might not receive a complete set of events. It is the responsibility of
 authors and subscribers to ensure that the brokers they use provide the
 services they require. Brokers should clearly advertise any added-value
-behavior they provide, for example on a website or through the IVOA registry.
+behaviour they provide, for example on a website or through the IVOA registry.
 
 \section{Node roles}
 \label{sec:noderoles}
@@ -283,7 +283,7 @@ of geometric back-off algorithm may help alleviate network load.
 \section{Transport messages}
 \label{sec:transport}
 
-Transport messages are VTP messages \S\ref{sec:common:format} containg a
+Transport messages are VTP messages \S\ref{sec:common:format} containing a
 \texttt{<Transport~/>} element. There are four classes of
 \texttt{<Transport~/>} element, distinguished by their \texttt{role}
 attribute:
@@ -391,7 +391,7 @@ already been distributed: Section \ref{sec:dedup}).
 A \texttt{nak} response should be regarded as a permanent failure state:
 delivery of the VOEvent message which was met with the \texttt{nak} to the
 recipient which replied with the \texttt{nak} should be aborted. If the
-VOEvent message was being transmistted over an author-to-broker connection,
+VOEvent message was being transmitted over an author-to-broker connection,
 the author may identify the cause of the failure (for example by making use of
 the information in the \texttt{<Meta />} element of the \texttt{nak}),
 construct a corrected VOEvent message and attempt a repeat submission. If the
@@ -541,7 +541,7 @@ whether the VOEvent message has been accepted (\texttt{ack}) or refused
 (\texttt{nak}). The broker must not attempt to repeat delivery of the message
 if a \texttt{nak} is received.
 
-The TCP conntection remains open, and the \texttt{iamalive} exchange
+The TCP connection remains open, and the \texttt{iamalive} exchange
 continues, until either the subscriber explicitly closes the connection or
 stops sending \texttt{iamalive} response messages, thereby implicitly
 indicating that the connection is closed.
@@ -564,7 +564,7 @@ These transactions are illustrated in Figure \ref{fig:protocol:brokertosub}.
 The initiates a TCP connection to the broker. The broker may choose to accept
 or reject that connection based, for example, on an access control whitelist
 (\S\ref{sec:limit:whitelist}). If the subscriber is rejected, the connection
-is terminated. Otherwise, the connection remains open, and the subcriber
+is terminated. Otherwise, the connection remains open, and the subscriber
 begins receiving messages.
 
 Periodically, at intervals of no more than 90\,s (\S\ref{sec:maintenance}),
@@ -574,14 +574,14 @@ with an \texttt{iamalive} response (\S\ref{sec:transport:iamaliveresponse}).
 If the subscriber does not receive \texttt{iamalive} messages from the broker
 in a timely fashion, it may assume that the broker is dead or gone and close
 TCP connection. The subscriber may attempt to re-connect to the broker.
-Reconnection attempts should use a geometric back-off algorithm.
+Re-connection attempts should use a geometric back-off algorithm.
 
 When a VOEvent message is received, the subscriber may test it for
 validity. The subscriber must return a VOEvent message receipt response
 (\S\ref{sec:transport:ack}) to the broker indicating that it has either
 accepted (\texttt{ack}) or refused (\texttt{nak}) the VOEvent message.
 
-The TCP conntection remains open, and the \texttt{iamalive} exchange
+The TCP connection remains open, and the \texttt{iamalive} exchange
 continues, until either the subscriber explicitly closes the connection or
 stops receiving \texttt{iamalive} messages, which indicates that the
 connection has been terminated.
@@ -604,7 +604,7 @@ which includes A, which forwards it to its subscriber lists, which includes B,
 and so on. In order to prevent this, each broker must process each unique
 VOEvent message it receives a maximum of once.
 
-Note that it is now estabalished practice to distribute different descriptions
+Note that it is now established practice to distribute different descriptions
 (e.g. VOEvent 1.1 and 2.0) of the same celestial event with the same IVORN
 \footnote{\url{http://www.ivoa.net/pipermail/voevent/2012-March/002836.html}
 and subsequent discussion.}. Consequently, an IVORN is not a unique
@@ -660,7 +660,7 @@ Various digital signature schemes which are appropriate for use with VOEvent
 and other XML documents have been suggested \citep{Allen:2008, Denny:2008}.
 The general techniques described in this section are agnostic as to the
 details of the signature scheme adopted, requiring only that it be agreed upon
-by the parties paritcipating in a transaction before that transaction starts.
+by the parties participating in a transaction before that transaction starts.
 
 \subsubsection{Author submission}
 \label{sec:limit:crypto:author}
@@ -682,17 +682,17 @@ validation failed: see Section \ref{sec:transport:ack}.
 
 The subscriber connects to the broker as described in Sections
 \ref{sec:protocol:brokertosub} and \ref{sec:protocol:subfrombroker}. At any
-time after the initial connection ahs been made, the broker may send a
+time after the initial connection has been made, the broker may send a
 Transport (\S\ref{sec:transport}) message with the \texttt{role} attribute
 equal to \texttt{authenticate} to the subscriber: see Listing
 \ref{lst:authenticate} for an example. The subscriber must return a digitally
-signed \texttt{authenticate} response. The broker checks the signture as in
+signed \texttt{authenticate} response. The broker checks the signature as in
 Section \ref{sec:limit:crypto:author}: if it is valid, the broker leaves the
 connection open and delivers VOEvent messages to the subscriber, but, if it is
 invalid, the broker may terminate the connection.
 
 As long as the connection remains open, there is no need for any further
-messages to be signed. If the connected is lost, forcing a reconnection, the
+messages to be signed. If the connected is lost, forcing a re-connection, the
 authentication exchange will occur as before.
 
 \begin{listing*}
