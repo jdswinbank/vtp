@@ -388,6 +388,16 @@ appropriate if the sender is able to accept the message but then decides not
 to redistribute it (for example, if it is a duplicate of an event which has
 already been distributed: Section \ref{sec:dedup}).
 
+A \texttt{nak} response should be regarded as a permanent failure state:
+delivery of the VOEvent message which was met with the \texttt{nak} to the
+recipient which replied with the \texttt{nak} should be aborted. If the
+VOEvent message was being transmistted over an author-to-broker connection,
+the author may identify the cause of the failure (for example by making use of
+the information in the \texttt{<Meta />} element of the \texttt{nak}),
+construct a corrected VOEvent message and attempt a repeat submission. If the
+VOEvent message was being transmitted over a broker-to-subscriber connection,
+the broker should abandon the attempt to deliver this message.
+
 \begin{listing*}
 \begin{minted}[fontsize=\small,frame=lines]{xml}
 <?xml version='1.0' encoding='UTF-8'?>
@@ -437,6 +447,7 @@ transmission (\texttt{nak}).}
 \end{listing*}
 
 \section{Protocol operation}
+\label{sec:protocol}
 
 This section describes the operation and sequencing of VTP operation for each
 end of a connection between an author and a broker, as well as between a
@@ -456,17 +467,17 @@ qualitative discussion of the protocol from the viewpoint of each entity.
   \label{fig:protocol:authortobroker}
 \end{figure}
 
+The author initiates a TCP connection to the broker. The broker may choose to
+accept or reject that connection based, for example, on an access control
+whitelist (\S\ref{sec:limit:whitelist}). If the author is rejected, the
+connection is terminated. If the connection is accepted, the author creates a
+VOEvent message by prepending a byte count to the VOEvent document
+(\S\ref{sec:common:format}) and transmits it to the broker. The author should
+then wait for a VOEvent message receipt response (\S\ref{sec:transport:ack})
+from the broker. The author may use this to determine whether the message
+has been successfully delivered. The connection is then closed.
 
-The author provides a single, complete event to the transport layer for
-transmission. It is the responsibility of the author to apply a digital
-signature (\S\ref{sec:limit:crypto}) to the message if required before sending
-it to the transport layer. It is the responsibility of the transport layer to
-prepend the byte count (\S\ref{sec:common:format}) to the message before
-sending it to the broker, and to interpret the \texttt{ack} or \texttt{nak}
-response from the broker (\S\ref{sec:transport:ack}).  The transport layer
-returns a value indicating success or failure to the author; it is the
-responsibility of the author to check this and to initiate any appropriate
-responsive action. See Figure \ref{fig:protocol:authortobroker} for details.
+This transaction is illustrated in Figure \ref{fig:protocol:authortobroker}.
 
 \subsection{Broker receiving from author}
 
@@ -480,19 +491,21 @@ responsive action. See Figure \ref{fig:protocol:authortobroker} for details.
   \label{fig:protocol:brokerfromauthor}
 \end{figure}
 
-The broker responds to two events from the transport layer, as shown in Figure
-\ref{fig:protocol:brokerfromauthor}. One event indicates that a request for a
-TCP connection has arrived, and the broker must respond with accept or reject
-status. This is where the broker can provide IP whitelist access control
-(\S\ref{sec:limit:whitelist}). The other event indicates that a message has
-been received, and the broker must respond with accept or reject status. This
-is where the broker can validate the XML and check any digital signature
-(\S\ref{sec:limit:crypto:author}). It is the responsibility of the Transport
-layer to remove the byte count (\S\ref{sec:common:format}) from the incoming
-message, and to create the \texttt{ack} or \texttt{nak} response
-(\S\ref{sec:transport:ack}).
+The broker awaits incoming TCP connections from authors. When a connection is
+received, the broker may choose to accept or reject the connection based, for
+example, on an access control whitelist (\S\ref{sec:limit:whitelist}). If the
+author is rejected, the connection is terminated. Otherwise, the broker
+waits to receive a VOEvent message from the author. When the VOEvent is
+received, the broker should test the message for validity and check any
+digital signature if required (\S\ref{sec:limit:crypto:author}). The broker
+must return a VOEvent message receipt response (\S\ref{sec:transport:ack}) to
+the author indicating that it has either accepted (\texttt{ack}) or refused
+(\texttt{nak}) the VOEvent message. The connection is then closed.
+
+This transaction is illustrated in Figure \ref{fig:protocol:brokerfromauthor}.
 
 \subsection{Broker sending to subscriber}
+\label{sec:protocol:brokertosub}
 
 \begin{figure}[H]
   \begin{center}
@@ -504,32 +517,34 @@ message, and to create the \texttt{ack} or \texttt{nak} response
   \label{fig:protocol:brokertosub}
 \end{figure}
 
-See Figure \ref{fig:protocol:brokertosub}. Subscribers connect to the broker
-and leave the connection open indefinitely. The broker responds to an event
-from the transport layer indicating that a subscriber wants to open a TCP
-connection, and the broker must respond with accept or reject status. This is
-where the broker can provide IP white list access control
-(\S\ref{sec:limit:whitelist}). If accepted, the broker would presumably add
-this subscriber to its distribution list.
+The broker awaits incoming TCP connections from subscribers. When a new
+connection is received, the broker may choose to accept or reject the
+connection based, for example, on an access control whitelist
+(\S\ref{sec:limit:whitelist}). If the subscriber is rejected, the connection
+is terminated. Otherwise, the broker adds the subscriber to its distribution
+list.
 
-Once the subscriber has successfully connected to the broker, the broker's
-Transport layer begins sending periodic \texttt{iamalive} messages to the
-subscriber, which replies with an \texttt{iamalive} response
-(\S\S\ref{sec:transport:iamalive} and \ref{sec:transport:iamaliveresponse}).
-If the subscriber's \texttt{iamalive} reply messages stop arriving, the
-Transport layer may assume that the subscriber is dead or gone, and close the
-TCP connection. The \texttt{iamalive} exchange continues until the subscriber
-closes the TCP connection or the broker's Transport layer stops receiving
-\texttt{iamalive} replies from the subscriber.
+Periodically, at intervals of no more than 90\,s (\S\ref{sec:maintenance}),
+the broker must send an \texttt{iamalive} message
+(\S\ref{sec:transport:iamalive}) to the subscriber. The subscriber must reply
+with an \texttt{iamalive} response (\S\ref{sec:transport:iamaliveresponse}).
+If the broker does not receive \texttt{iamalive} response messages from the
+subscriber in a timely fashion, it may assume that the subscriber is dead or
+gone and close TCP connection.
 
-To send a message to the subscriber, the broker provides it to the Transport
-layer. It is the responsibility of the transport layer to prepend the byte
-count (\S\ref{sec:common:format}) to the message before sending to the
-subscriber, and to interpret the resulting \texttt{ack} or \texttt{nak}
-message (\S\ref{sec:transport:ack}). The Transport layer returns a value
-indicating success or failure to the broker; in the event of an error
-(\texttt{nak} received, dead-peer, or subscriber closed the connection), the
-broker may remove the subscriber from its distribution list.
+When the broker has a new VOEvent message ready for distribution, it is sent
+to the subscriber. The broker receives a VOEvent message receipt response
+(\S\ref{sec:transport:ack}) in reply. The broker may use this to determine
+whether the VOEvent message has been accepted (\texttt{ack}) or refused
+(\texttt{nak}). The broker must not attempt to repeat delivery of the message
+if a \texttt{nak} is received.
+
+The TCP conntection remains open, and the \texttt{iamalive} exchange
+continues, until either the subscriber explicitly closes the connection or
+stops sending \texttt{iamalive} response messages, thereby implicitly
+indicating that the connection is closed.
+
+These transactions are illustrated in Figure \ref{fig:protocol:brokertosub}.
 
 \subsection{Subscriber receiving from broker}
 \label{sec:protocol:subfrombroker}
@@ -544,29 +559,32 @@ broker may remove the subscriber from its distribution list.
   \label{fig:protocol:subfrombroker}
 \end{figure}
 
-See Figure \ref{fig:protocol:subfrombroker}. Subscribers connect to the broker
-and leave the connection open indefinitely. If the connection is successful,
-the subscriber will begin receiving messages.
+The initiates a TCP connection to the broker. The broker may choose to accept
+or reject that connection based, for example, on an access control whitelist
+(\S\ref{sec:limit:whitelist}). If the subscriber is rejected, the connection
+is terminated. Otherwise, the connection remains open, and the subcriber
+begins receiving messages.
 
-As per Section \ref{sec:maintenance}, when the subscriber has successfully connected to the
-broker, the subscriber's Transport layer begins listening for periodic
-\texttt{iamalive} (\S\ref{sec:transport:iamalive}) messages from the broker.
-For each \texttt{iamalive} message
-received, the Transport layer responds with an \texttt{iamalive} response
-(\S\ref{sec:transport:iamaliveresponse}).
-If the broker's iamalive messages stop arriving, the subscriber's Transport
-layer may assume that the connection has been lost and attempt to re-connect
-to the broker. Reconnection attempts should use ageometric back-off algorithm.
-If the subscriber's Transport layer cannot re-establish the connection, it
-should notify the subscriber of the error.
+Periodically, at intervals of no more than 90\,s (\S\ref{sec:maintenance}),
+the subscriber should expect to receive an  \texttt{iamalive} message
+(\S\ref{sec:transport:iamalive}) from the broker. The subscriber must reply
+with an \texttt{iamalive} response (\S\ref{sec:transport:iamaliveresponse}).
+If the subscriber does not receive \texttt{iamalive} messages from the broker
+in a timely fashion, it may assume that the broker is dead or gone and close
+TCP connection. The subscriber may attempt to re-connect to the broker.
+Reconnection attempts should use a geometric back-off algorithm.
 
-The subscriber client responds to an event advising that a (VOEvent) message
-has arrived, and the subscriber client must respond with accept or reject
-status. This is where the subscriber can validate the XML and check any
-digital signature that may be present. It is the responsibility of the
-Transport layer to remove the byte count (\S\ref{sec:common:format}) from the
-incoming message, and to create and send the \texttt{ack} or \texttt{nak}
-message (\S{sec:transport:ack}).
+When a VOEvent message is received, the subscriber may test it for
+validity. The subscriber must return a VOEvent message receipt response
+(\S\ref{sec:transport:ack}) to the broker indicating that it has either
+accepted (\texttt{ack}) or refused (\texttt{nak}) the VOEvent message.
+
+The TCP conntection remains open, and the \texttt{iamalive} exchange
+continues, until either the subscriber explicitly closes the connection or
+stops receiving \texttt{iamalive} messages, which indicates that the
+connection has been terminated.
+
+These transactions are illustrated in Figure \ref{fig:protocol:subfrombroker}.
 
 \section{De-duplication}
 \label{sec:dedup}
@@ -760,6 +778,15 @@ occur as before.
 
     \item{Clarify the semantics of \texttt{nak} transport messages
     (\S\ref{sec:transport:ack}).}
+
+    \item{Make it explicit that brokers should not attempt to repeat delivery
+    of messages which meet with a \texttt{nak} on the first attempt: VTP does
+    not support the concept of a ``temporary failure''
+    (\S\S\ref{sec:transport:ack}, \ref{sec:protocol:brokertosub}).}
+
+    \item{Reword the descriptions of protocol operation so that they describe
+    only the traffic exchanged over the network and not the implementation of
+    the various entities (\S\ref{sec:protocol}).}
 
     \item{Allow timezone specification in \texttt{iamalive}
     \texttt{<TimeStamp~/>} elements (\S\S\ref{sec:transport:iamalive},
