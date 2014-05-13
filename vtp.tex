@@ -438,25 +438,10 @@ transmission (\texttt{nak}).}
 
 \section{Protocol operation}
 
-\begin{figure}[H]
-  \begin{center}
-  \includegraphics{figures/architecture.pdf}
-  \end{center}
-
-  \caption{Layered architecture.}
-
-  \label{fig:architecture}
-\end{figure}
-
 This section describes the operation and sequencing of VTP operation for each
 end of a connection between an author and a broker, as well as between a
 broker and a subscriber. See Section \ref{sec:noderoles} above for a
 qualitative discussion of the protocol from the viewpoint of each entity.
-
-The protocol diagrams in the following sections depict layers between which
-are interfaces. Figure \ref{fig:architecture} shows the overall architecture
-of communication between authors, brokers, and subscribers. Each entity uses
-the transport layer to send and/or receive VOEvent messages.
 
 \subsection{Author sending to broker}
 \label{sec:protocol:authortobroker}
