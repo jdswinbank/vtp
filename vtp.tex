@@ -446,6 +446,7 @@ transmission (\texttt{nak}).}
 \label{lst:nak}
 \end{listing*}
 
+\newpage
 \section{Protocol operation}
 \label{sec:protocol}
 
@@ -480,6 +481,7 @@ has been successfully delivered. The connection is then closed.
 This transaction is illustrated in Figure \ref{fig:protocol:authortobroker}.
 
 \subsection{Broker receiving from author}
+\label{sec:protocol:brokerfromauthor}
 
 \begin{figure}[H]
   \begin{center}
@@ -590,32 +592,33 @@ These transactions are illustrated in Figure \ref{fig:protocol:subfrombroker}.
 \label{sec:dedup}
 
 In a network topology like that illustrated in Figure \ref{fig:network},
-multiple brokers service independent sets of authors and subscribers. As per
-Sections \ref{sec:intro} and \ref{sec:node:brokertobroker}, brokers will
-subscribe to each other's event feeds to ensure that their subscribers have
-access to the full range of available events. In this way, in a complex
-VOEvent network, many brokers will form one or more strongly connected sets.
+multiple brokers service potentially overlapping sets of authors and
+subscribers. As per Sections \ref{sec:intro} and
+\ref{sec:node:brokertobroker}, brokers will subscribe to each other's event
+feeds to ensure that their subscribers have access to the full range of
+available events.
 
 In this situation, there is a risk of event loops developing on the network:
 broker A receives an event from B and forwards it to its subscriber list,
 which includes A, which forwards it to its subscriber lists, which includes B,
-and so on.
+and so on. In order to prevent this, each broker must process each unique
+VOEvent message it receives a maximum of once.
 
-In order to prevent this, each broker must process each unique event it
-receives a maximum of once. For this purpose, we regard ``unique'' as meaning
-that the content between the opening \texttt{<} and closing \texttt{>} of the
-\texttt{<VOEvent~/>} element is bit-for-bit identical, including all white
-space characters\footnote{The implementation of this check is at the
-discretion of the broker. Appropriate techniques may include directly
-comparing the bitstream (which would necessarily mean storing an archive of
-previously-processed events) or calculating a hash function such as SHA1
-\citep{Eastlake:2001} over the event contents and storing the result.}. Note
-that it is now established practice to distribute different serializations
-(e.g.  VOEvent 1.1 and 2.0) of the same event with the same
-IVORN\footnote{\url{http://www.ivoa.net/pipermail/voevent/2012-March/002836.html}
-and subsequent discussion.}.  Consequently, an IVORN is not a unique
-identifier of a particular event representation, and is not, therefore,
+Note that it is now estabalished practice to distribute different descriptions
+(e.g. VOEvent 1.1 and 2.0) of the same celestial event with the same IVORN
+\footnote{\url{http://www.ivoa.net/pipermail/voevent/2012-March/002836.html}
+and subsequent discussion.}. Consequently, an IVORN is not a unique
+identifier of a particular VOEvent message, and is not, therefore,
 suitable for use in network de-duplication.
+
+Instead, we regard two messages as being the same if the content between the
+opening \texttt{<} and the closing \texttt{>} of the \texttt{<VOEvent~/>}
+element is bit-for-bit identical, including all white space characters. The
+implementation of this check is left to the discretion of the broker\footnote{
+Appropriate techniques may include directly comparing the bitstream (which
+would necessarily mean storing an archive of previously-processed events) or
+calculating a hash function such as SHA1 \citep{Eastlake:2001} over the event
+contents and storing the result.}.
 
 \section{Limiting access}
 \label{sec:limit}
@@ -623,9 +626,9 @@ suitable for use in network de-duplication.
 For administrative or security reasons, broker administrators may wish to
 limit access to the services they provide to a restricted range of clients.
 These restrictions may be required on either or both of the connection types
-in VTP: author to broker (i.e., a limit on which authors can publish through a
-given broker) or broker to subscriber (a limit on which subscribers a broker
-is willing to provide with event streams).
+in VTP: author to broker (a limit on which authors can publish through a given
+broker) or broker to subscriber (a limit on which subscribers a broker is
+willing to provide with event streams).
 
 Two mechanisms are available within the VTP system to address these
 requirements.
@@ -639,58 +642,58 @@ simply deny connections from addresses which fall outside that range. If the
 sets of authorized authors and subscribers are not the same, separate
 whitelists may be implemented.
 
-This mechanism is simple and effective. However, it imposes significant
-administrative overhead on the broker owner if large and complex whitelists
-are required. Further, it is of limited applicability if the clients to be
-serviced are using dynamic IP addresses (that is, addresses which change
-periodically).
+This mechanism imposes significant administrative overhead on the broker owner
+if large and complex whitelists are required. Further, it is of limited
+applicability if the clients to be serviced are using dynamic IP addresses
+(that is, addresses which change periodically).
 
 \subsection{Cryptographic signatures}
 \label{sec:limit:crypto}
 
-A cryptographic signature can be used to verify the identity of the sender of
-a message. A simple and transparent means to digitally sign XML messages, with
-particular reference to VOEvent, has been developed to be compatible with the
-VTP system \citep{Denny:2008}. Brokers can use this scheme to check the
-identity of clients. The mechanism varies slightly depending on whether the
-client is an author or a subscriber.
+A digital signature scheme enables the recipient of a digital message to
+verify the identity of its author \citep{Diffie:1976}. By requiring authors
+and subscribers to apply appropriate signatures to VOEvent and Transport
+messages, it is possible for a broker to verify their identity and restrict
+the services made available to them appropriately, as described below.
+
+Various digital signature schemes which are appropriate for use with VOEvent
+and other XML documents have been suggested \citep{Allen:2008, Denny:2008}.
+The general techniques described in this section are agnostic as to the
+details of the signature scheme adopted, requiring only that it be agreed upon
+by the parties paritcipating in a transaction before that transaction starts.
 
 \subsubsection{Author submission}
 \label{sec:limit:crypto:author}
 
-Authors connect, send a VOEvent message, and then disconnect
-(\S\ref{sec:protocol:authortobroker}).  All that is needed is for the author
-to sign the VOEvent message being submitted. The broker's acceptance/rejection
-criteria include validating the signature. If that succeeds, the broker
-accepts the message and returns an \texttt{ack}. Otherwise, if the broker does
-not have the author's public key or if validation fails, the message is
-discarded and the broker returns a \texttt{nak}. A \texttt{<Result~/>} element
-may be included explaining that the signature validation failed: see Section
-\ref{sec:transport:ack}.
-
-The benefits of having authors sign their VOEvent messages extend beyond
-broker access control: the presence of a signature on an author's VOEvent
-message can be used by subscribers to guarantee the integrity of the message.
-Note, however, that the subscriber must not assume that brokers have checked
-all signatures on their behalf: if the subscriber requires that the event
-integrity be verified, they must check the signature themselves.
+The author starts by applying a digital signature to the VOEvent document.
+Submission then proceeds as per Section \S\ref{sec:protocol:authortobroker}.
+The criteria used by the broker to determine whether to accept responsibility
+for the event may include checking the digital signature
+(\S\ref{sec:protocol:brokerfromauthor}). If the signature is successfully
+validated (and no other faults are detected), the broker accepts
+responsibility for the message and returns an \texttt{ack}.  Otherwise, if
+validation of the signature either fails or is impossible to complete, the
+message is discarded and the broker returns a \texttt{nak}. A
+\texttt{<Result~/>} element may be included explaining that the signature
+validation failed: see Section \ref{sec:transport:ack}.
 
 \subsubsection{Subscriber authentication}
 \label{sec:limit:crypto:subscriber}
 
-Subscribers do not send VOEvent messages to the broker
-(\S\ref{sec:protocol:subfrombroker}). To accommodate subscriber authentication
-using a signed message, the broker sends a Transport \texttt{authenticate}
-message (see the example in Listing \ref{lst:authenticate}) to the subscriber
-immediately after the subscriber connects. The subscriber returns a digitally
-signed \texttt{authenticate} response, with which the broker authenticates the
-subscriber as before. If the authentication succeeds, the broker leaves the
-TCP connection open and begins to deliver VOEvent messages to the subscriber.
-If the authentication fails, the broker simply closes the TCP connection.
-There is no need for the subscriber to digitally sign subsequent
-\texttt{iamalive} responses as long as the TCP connection remains open. If the
-connection is lost, forcing a reconnect, the authentication exchange will
-occur as before.
+The subscriber connects to the broker as described in Sections
+\ref{sec:protocol:brokertosub} and \ref{sec:protocol:subfrombroker}. At any
+time after the initial connection ahs been made, the broker may send a
+Transport (\S\ref{sec:transport}) message with the \texttt{role} attribute
+equal to \texttt{authenticate} to the subscriber: see Listing
+\ref{lst:authenticate} for an example. The subscriber must return a digitally
+signed \texttt{authenticate} response. The broker checks the signture as in
+Section \ref{sec:limit:crypto:author}: if it is valid, the broker leaves the
+connection open and delivers VOEvent messages to the subscriber, but, if it is
+invalid, the broker may terminate the connection.
+
+As long as the connection remains open, there is no need for any further
+messages to be signed. If the connected is lost, forcing a reconnection, the
+authentication exchange will occur as before.
 
 \begin{listing*}
 \begin{minted}[fontsize=\small,frame=lines]{xml}
@@ -768,7 +771,7 @@ occur as before.
     \item{Specify an explicit interval requirement to connection maintenance
     messages (\S\ref{sec:maintenance}).}
 
-    \item{Clarify the semantics of \texttt{nak} transport messages
+    \item{Clarify the semantics of \texttt{nak} Transport messages
     (\S\ref{sec:transport:ack}).}
 
     \item{Make it explicit that brokers should not attempt to repeat delivery
