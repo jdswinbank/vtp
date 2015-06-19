@@ -1,23 +1,24 @@
 \documentclass[a4paper,11pt]{ivoa}
+\input tthdefs
+
 \usepackage[a4paper,left=1.2in,right=1.2in,top=1.2in,bottom=1.2in]{geometry}
-\usepackage{lmodern}
-\usepackage{natbib}
-\usepackage{minted}
-\usepackage{graphicx}
-\usepackage{float}
+\usepackage{listings}
+\lstloadlanguages{XML}
+\lstset{flexiblecolumns=true,tagstyle=\ttfamily,basicstyle=\small,showstringspaces=false}
 
 \title{VOEvent Transport Protocol}
-\author{Alasdair Allan, Robert B. Denny, John Swinbank}
-\editor{John Swinbank}
-\ivoatype{IVOA Working Draft}
 \ivoagroup{Time Domain Interest Group}
-\version{1.2 (draft)}
+\author{Alasdair Allan}
+\author{Robert B. Denny}
+\author{John Swinbank}
+\editor{John Swinbank}
 
+\previousversion{This is the first public release as a Working Draft,
+developed from an IVOA Note by Allan and Denny.}
 
 \begin{document}
-\maketitle
 
-\section*{Abstract}
+\begin{abstract}
 
 The IVOA VOEvent Recommendation \citep{Seaman:2011} defines a means of
 describing transient celestial events but, purposely, remains silent on the
@@ -27,20 +28,7 @@ use by members of the VOEvent community for several years and discusses the
 topology of the event distribution network. It is intended to act as a
 reference for the production of compliant protocol implementations.
 
-\section*{Status of this document}
-
-This document has been produced by John Swinbank based on the version 1.1
-specification by Allan \& Denny. This draft version is a work in progress. It
-is intended to add clarifications to the previous version without changing the
-on-the-wire protocol.
-
-This is an IVOA Note expressing suggestions from and opinions of the authors.
-It is intended to share best practices, possible approaches, or other
-perspectives on interoperability with the Virtual Observatory. It should not
-be referenced or otherwise interpreted as a standard specification.
-
-A list of current IVOA Recommendations and other technical documents can be
-found at \url{http://www.ivoa.net/documents/}.
+\end{abstract}
 
 \section*{Acknowledgements}
 
@@ -52,12 +40,6 @@ found at \url{http://www.ivoa.net/documents/}.
 
 Swinbank acknowledges support from the European Research Council via Advanced
 Investigator Grant 247295.
-
-\newpage
-
-\tableofcontents
-
-\newpage
 
 \section{Introduction}
 \label{sec:intro}
@@ -86,8 +68,8 @@ prototyped and met with varying degrees of technical success and community
 adoption. However, as the number of interested participants grows, and
 next-generation large-scale survey instruments such as LSST\footnote{Large
 Synoptic Survey Telescope; \url{http://www.lsst.org/}}, LIGO\footnote{Laser
-Interferometric Gravitational-Wave Observatory; \url{http://www.ligo.org}},
-LOFAR\footnote{Low Frequency Array; \url{http://www.lofar.org}} and
+Interferometric Gravitational-Wave Observatory; \url{http://www.ligo.org/}},
+LOFAR\footnote{Low Frequency Array; \url{http://www.lofar.org/}} and
 SKA\footnote{Square Kilometer Array; \url{http://www.ska-telescope.org/}} are
 developed and begin to become available, it is clear that a standard,
 interoperable mechanism for event communication is required. It is such a
@@ -312,8 +294,8 @@ IVORN\footnote{International Virtual Observatory Resource Name
 was generated formatted as per \S3.3.7 of \citet{Peterson:2012}. This should
 normally include a timezone; if one is omitted, UTC may be assumed.
 
-\begin{listing*}
-\begin{minted}[fontsize=\small,frame=lines]{xml}
+\begin{lstlisting}[language=xml,caption=sample \texttt{iamalive} message.,
+                   label=lst:iamalive]
 <?xml version="1.0" encoding="UTF-8"?>
 
 <trn:Transport role="iamalive" version="1.0"
@@ -324,10 +306,7 @@ normally include a timezone; if one is omitted, UTC may be assumed.
     <Origin>ivo://invalid.broker/example#</Origin>
     <TimeStamp>2001-01-01T00:00:00Z</TimeStamp>
 </trn:Transport>
-\end{minted}
-\caption{Sample \texttt{iamalive} message.}
-\label{lst:iamalive}
-\end{listing*}
+\end{lstlisting}
 
 \subsection{\texttt{iamalive} response}
 \label{sec:transport:iamaliveresponse}
@@ -344,8 +323,8 @@ time at which the response was generated, formatted as per \S3.3.7 of
 \citet{Peterson:2012}. This should normally include a timezone; if one is
 omitted, UTC may be assumed.
 
-\begin{listing*}
-\begin{minted}[fontsize=\small,frame=lines]{xml}
+\begin{lstlisting}[language=XML,caption=Sample \texttt{iamalive} response.,
+                   label=lst:iamaliveresponse]
 <?xml version='1.0' encoding='UTF-8'?>
 
 <trn:Transport role="iamalive" version="1.0"
@@ -361,10 +340,7 @@ omitted, UTC may be assumed.
         <Param name="Contact" value="name@subscriber.invalid" />
     </Meta>
 </trn:Transport>
-\end{minted}
-\caption{Sample \texttt{iamalive} response.}
-\label{lst:iamaliveresponse}
-\end{listing*}
+\end{lstlisting}
 
 \subsection{VOEvent message receipt response}
 \label{sec:transport:ack}
@@ -398,8 +374,8 @@ construct a corrected VOEvent message and attempt a repeat submission. If the
 VOEvent message was being transmitted over a broker-to-subscriber connection,
 the broker should abandon the attempt to deliver this message.
 
-\begin{listing*}
-\begin{minted}[fontsize=\small,frame=lines]{xml}
+\begin{lstlisting}[language=XML,label=lst:ack,
+                   caption=Sample VOEvent message receipt response indicating successful transmission (\texttt{ack}).]
 <?xml version='1.0' encoding='UTF-8'?>
 
 <trn:Transport role="ack" version="1.0"
@@ -416,14 +392,10 @@ the broker should abandon the attempt to deliver this message.
         <Result>Message received and validated successfully</Result>
     </Meta>
 </trn:Transport>
-\end{minted}
-\caption{Sample VOEvent message receipt response indicating successful
-transmission (\texttt{ack}).}
-\label{lst:ack}
-\end{listing*}
+\end{lstlisting}
 
-\begin{listing*}
-\begin{minted}[fontsize=\small,frame=lines]{xml}
+\begin{lstlisting}[language=XML,label=lst:nak,
+                   caption=Sample VOEvent message receipt response indicating unsuccessful transmission (\texttt{nak}).]
 <?xml version='1.0' encoding='UTF-8'?>
 
 <trn:Transport role="nak" version="1.0"
@@ -440,13 +412,8 @@ transmission (\texttt{ack}).}
         <Result>Error in VOEvent message: ISOTime not in ISO 8601 format</Result>
     </Meta>
 </trn:Transport>
-\end{minted}
-\caption{Sample VOEvent message receipt response indicating unsuccessful
-transmission (\texttt{nak}).}
-\label{lst:nak}
-\end{listing*}
+\end{lstlisting}
 
-\newpage
 \section{Protocol operation}
 \label{sec:protocol}
 
@@ -458,7 +425,7 @@ qualitative discussion of the protocol from the viewpoint of each entity.
 \subsection{Author sending to broker}
 \label{sec:protocol:authortobroker}
 
-\begin{figure}[H]
+\begin{figure}
   \begin{center}
   \includegraphics{figures/authortobroker.pdf}
   \end{center}
@@ -483,7 +450,7 @@ This transaction is illustrated in Figure \ref{fig:protocol:authortobroker}.
 \subsection{Broker receiving from author}
 \label{sec:protocol:brokerfromauthor}
 
-\begin{figure}[H]
+\begin{figure}
   \begin{center}
   \includegraphics{figures/brokerfromauthor.pdf}
   \end{center}
@@ -509,7 +476,7 @@ This transaction is illustrated in Figure \ref{fig:protocol:brokerfromauthor}.
 \subsection{Broker sending to subscriber}
 \label{sec:protocol:brokertosub}
 
-\begin{figure}[H]
+\begin{figure}
   \begin{center}
   \includegraphics{figures/brokertosub.pdf}
   \end{center}
@@ -551,7 +518,7 @@ These transactions are illustrated in Figure \ref{fig:protocol:brokertosub}.
 \subsection{Subscriber receiving from broker}
 \label{sec:protocol:subfrombroker}
 
-\begin{figure}[H]
+\begin{figure}
   \begin{center}
   \includegraphics{figures/subfrombroker.pdf}
   \end{center}
@@ -695,8 +662,8 @@ As long as the connection remains open, there is no need for any further
 messages to be signed. If the connected is lost, forcing a re-connection, the
 authentication exchange will occur as before.
 
-\begin{listing*}
-\begin{minted}[fontsize=\small,frame=lines]{xml}
+\begin{lstlisting}[language=XML,caption=Sample \texttt{authenticate} message.,
+                   label=lst:authenticate]
 <?xml version="1.0" encoding="UTF-8"?>
 
 <trn:Transport role="authenticate" version="1.0"
@@ -707,10 +674,7 @@ authentication exchange will occur as before.
     <Origin>ivo://invalid.broker/example#</Origin>
     <TimeStamp>2001-01-01T00:00:00Z</TimeStamp>
 </trn:Transport>
-\end{minted}
-\caption{Sample \texttt{authenticate} message.}
-\label{lst:authenticate}
-\end{listing*}
+\end{lstlisting}
 
 \newpage
 \appendix
@@ -718,7 +682,7 @@ authentication exchange will occur as before.
 \section{Transport schema}
 \label{sec:transportschema}
 
-\begin{minted}[fontsize=\small]{xml}
+\begin{lstlisting}[language=XML]
 <?xml version="1.0" encoding="utf-8" ?>
 <xs:schema xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
            xmlns:xs="http://www.w3.org/2001/XMLSchema">
@@ -755,7 +719,7 @@ authentication exchange will occur as before.
   </xs:restriction>
  </xs:simpleType>
 </xs:schema>
-\end{minted}
+\end{lstlisting}
 
 \section{Version history}
 
@@ -799,7 +763,6 @@ within the optional \texttt{<Meta~/>} element. This is intended to convey
 details on errors encountered if the Transport response is \texttt{nak} but
 may also be used for informational purposes in \texttt{ack} messages.
 
-\bibliographystyle{elsarticle-harv}
-\bibliography{vtp}
+\bibliography{ivoatex/ivoabib,vtp}
 
 \end{document}
