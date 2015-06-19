@@ -29,7 +29,3 @@ include ivoatex/Makefile
 
 # We'll use GraphicsMagick to do PDF to PNG conversion...
 CONVERT = gm convert
-
-# ...and avoid unnecessary use of temporary files.
-%.pdf.png: %.pdf
-	$(CONVERT) -density 300 -scale 25% $< $@
