@@ -3,11 +3,15 @@
 # short name of your document (edit $DOCNAME.tex; would be like RegTAP)
 DOCNAME = vtp
 
-# count up; you probably do not want to bother with versions <1.0
-DOCVERSION := $(shell git describe)
+# The version is the most recent annotated tag
+DOCVERSION := $(shell git describe --abbrev=0)
 
-# Publication date, ISO format; update manually for "releases"
-DOCDATE := $(shell git log -1 --date=short --pretty=%ad)-git
+# The date corresponds to the version above; ISO format
+DOCDATE := $(shell git log -1 --date=short --pretty=%ad $(DOCVERSION))
+
+# Version information extracted from git.
+GITVERSION := $(shell git log -1 --date=short --pretty=%h)
+GITDATE := $(shell git log -1 --date=short --pretty=%ai)
 
 # What is it you're writing: NOTE, WD, PR, or REC
 DOCTYPE = WD
@@ -29,3 +33,15 @@ include ivoatex/Makefile
 
 # We'll use GraphicsMagick to do PDF to PNG conversion...
 CONVERT = gm convert
+
+ivoatexmeta.tex: Makefile
+	rm -f $@
+	touch $@
+	echo '% GENERATED FILE -- edit this in the Makefile' >>$@
+	/bin/echo '\newcommand{\ivoaDocversion}{$(DOCVERSION)}' >>$@
+	/bin/echo '\newcommand{\ivoaDocdate}{$(DOCDATE)}' >>$@
+	/bin/echo '\newcommand{\ivoaDocdatecode}{$(DOCDATE)}' | sed -e 's/-//g' >>$@
+	/bin/echo '\newcommand{\ivoaDoctype}{$(DOCTYPE)}' >>$@
+	/bin/echo '\newcommand{\ivoaDocname}{$(DOCNAME)}' >>$@
+	/bin/echo '\vcsrevision{$(GITVERSION)}' >>$@
+	/bin/echo '\vcsdate{$(GITDATE)}' >>$@
