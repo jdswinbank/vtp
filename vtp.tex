@@ -153,8 +153,8 @@ ASCII and UTF-8 are equally supported}.
 Throughout this document, the term ``message'' refers to a complete VTP
 message, including both the initial byte count and the message payload.  The
 payload is an XML document. It must consist of an XML declaration followed by,
-in order, optional XML comments, a single \texttt{<VOEvent~/>} or
-\texttt{<Transport~/>}\footnote{ \texttt{<Transport~/>} elements are used by
+in order, optional XML comments, a single \xmlel{<VOEvent~/>} or
+\xmlel{<Transport~/>}\footnote{ \xmlel{<Transport~/>} elements are used by
 the VTP system itself and are invisible to end-users: see Section
 \ref{sec:transport} for details.} element, and more optional XML comments. It
 must validate against either the VOEvent XML
@@ -245,14 +245,14 @@ universally available \citep{Braden:1989}.}. Further, network infrastructure
 devices might sever a TCP connection after some period of inactivity. This
 gives rise to the need for keep-alive messages. After no more than 90 seconds
 of inactivity on any given connection, the broker must send a Transport
-\texttt{iamalive} message, to which the subscriber must reply with a copy of
+\xmlel{iamalive} message, to which the subscriber must reply with a copy of
 that message plus some optional identification information. The message format
 is described in Sections \ref{sec:transport:iamalive} and
 \ref{sec:transport:iamaliveresponse}.
 
 At both ends of the continuous connection, the node either expects to receive
-an \texttt{iamalive} message or expects to receive the response to its
-\texttt{iamalive} message. If not seen, the node should assume that the
+an \xmlel{iamalive} message or expects to receive the response to its
+\xmlel{iamalive} message. If not seen, the node should assume that the
 connection has been lost or the peer is dead. At this point, the node that was
 responsible for opening the connection may attempt to re-initiate it. The use
 of geometric back-off algorithm may help alleviate network load.
@@ -261,15 +261,15 @@ of geometric back-off algorithm may help alleviate network load.
 \label{sec:transport}
 
 Transport messages are VTP messages \S\ref{sec:common:format} containing a
-\texttt{<Transport~/>} element. There are four classes of
-\texttt{<Transport~/>} element, distinguished by their \texttt{role}
+\xmlel{<Transport~/>} element. There are four classes of
+\xmlel{<Transport~/>} element, distinguished by their \xmlel{role}
 attribute:
 
 \begin{itemize}
-\item{\texttt{iamalive} (Connection maintenance);}
-\item{\texttt{authenticate} (Authentication request/response);}
-\item{\texttt{ack} (VOEvent successful receipt acknowledgement);}
-\item{\texttt{nak} (VOEvent unsuccessful receipt acknowledgement).}
+\item{\xmlel{iamalive} (Connection maintenance);}
+\item{\xmlel{authenticate} (Authentication request/response);}
+\item{\xmlel{ack} (VOEvent successful receipt acknowledgement);}
+\item{\xmlel{nak} (VOEvent unsuccessful receipt acknowledgement).}
 \end{itemize}
 
 All Transport messages have the same general syntax, and are defined by the
@@ -278,18 +278,18 @@ maintenance and receipt acknowledgement message types are described in detail
 in this section; the authentication message type has a special role which is
 described in Section \ref{sec:limit:crypto:subscriber}.
 
-\subsection{\texttt{iamalive} message}
+\subsection{\xmlel{iamalive} message}
 \label{sec:transport:iamalive}
 
-The \texttt{iamalive} message is indicated by a role equal to
-\texttt{iamalive}. The \texttt{<Origin~/>} element contains the
+The \xmlel{iamalive} message is indicated by a role equal to
+\xmlel{iamalive}. The \xmlel{<Origin~/>} element contains the
 IVORN\footnote{International Virtual Observatory Resource Name
 \citep{Plante:2007}.} of the broker which is managing the connection. The
-\texttt{<TimeStamp~/>} element contains the date and time at which the message
+\xmlel{<TimeStamp~/>} element contains the date and time at which the message
 was generated formatted as per \S3.3.7 of \citet{Peterson:2012}. This should
 normally include a timezone; if one is omitted, UTC may be assumed.
 
-\begin{lstlisting}[language=xml,caption=sample \texttt{iamalive} message.,
+\begin{lstlisting}[language=xml,caption=Sample \xmlel{iamalive} message.,
                    label=lst:iamalive]
 <?xml version="1.0" encoding="UTF-8"?>
 
@@ -303,22 +303,22 @@ normally include a timezone; if one is omitted, UTC may be assumed.
 </trn:Transport>
 \end{lstlisting}
 
-\subsection{\texttt{iamalive} response}
+\subsection{\xmlel{iamalive} response}
 \label{sec:transport:iamaliveresponse}
 
-The \texttt{iamalive} response is an extension of the initial iamalive
-message. It also has a role of \texttt{iamalive}. It must include an
-additional \texttt{<Response~/>} element containing the IVORN of the
-subscriber.  It may include a \texttt{<Meta~/>} element with
-\texttt{<Param~/>} sub-elements which give additional information about the
-subscriber or any other relevant information. \texttt{<Param~/>} elements have
+The \xmlel{iamalive} response is an extension of the initial iamalive
+message. It also has a role of \xmlel{iamalive}. It must include an
+additional \xmlel{<Response~/>} element containing the IVORN of the
+subscriber.  It may include a \xmlel{<Meta~/>} element with
+\xmlel{<Param~/>} sub-elements which give additional information about the
+subscriber or any other relevant information. \xmlel{<Param~/>} elements have
 no content and must contain name and value attributes. The names and values
-may be any string. The \texttt{<TimeStamp~/>} element contains the date and
+may be any string. The \xmlel{<TimeStamp~/>} element contains the date and
 time at which the response was generated, formatted as per \S3.3.7 of
 \citet{Peterson:2012}. This should normally include a timezone; if one is
 omitted, UTC may be assumed.
 
-\begin{lstlisting}[language=XML,caption=Sample \texttt{iamalive} response.,
+\begin{lstlisting}[language=XML,caption=Sample \xmlel{iamalive} response.,
                    label=lst:iamaliveresponse]
 <?xml version='1.0' encoding='UTF-8'?>
 
@@ -340,37 +340,37 @@ omitted, UTC may be assumed.
 \subsection{VOEvent message receipt response}
 \label{sec:transport:ack}
 
-The VOEvent message receipt response is similar to the \texttt{iamalive}
-response except the role is either \texttt{ack} or \texttt{nak}, the
-\texttt{<Origin~/>} is the IVORN of the just-received VOEvent message, and an
-optional \texttt{<Result~/>} element may accompany the \texttt{<Param~/>}
-elements. \texttt{<Result~/>} may contain any string; it is recommended that
-it contain a human-readable error message if role is \texttt{nak}. The
-\texttt{<TimeStamp~/>} element contains the date and time at which the
+The VOEvent message receipt response is similar to the \xmlel{iamalive}
+response except the role is either \xmlel{ack} or \xmlel{nak}, the
+\xmlel{<Origin~/>} is the IVORN of the just-received VOEvent message, and an
+optional \xmlel{<Result~/>} element may accompany the \xmlel{<Param~/>}
+elements. \xmlel{<Result~/>} may contain any string; it is recommended that
+it contain a human-readable error message if role is \xmlel{nak}. The
+\xmlel{<TimeStamp~/>} element contains the date and time at which the
 response was generated, formatted as per \S3.3.7 of \citet{Peterson:2012}.
 This should normally include a timezone; if one is omitted, UTC may be
 assumed.
 
-The \texttt{nak} response indicates that the recipient is unable or unwilling
+The \xmlel{nak} response indicates that the recipient is unable or unwilling
 to take responsibility for this message. This may be because, for example, the
 message fails to validate as a valid VOEvent, or because it was received from
-an unauthorized client (\S\ref{sec:limit}). A \texttt{nak} response is not
+an unauthorized client (\S\ref{sec:limit}). A \xmlel{nak} response is not
 appropriate if the sender is able to accept the message but then decides not
 to redistribute it (for example, if it is a duplicate of an event which has
 already been distributed: Section \ref{sec:dedup}).
 
-A \texttt{nak} response should be regarded as a permanent failure state:
-delivery of the VOEvent message which was met with the \texttt{nak} to the
-recipient which replied with the \texttt{nak} should be aborted. If the
+A \xmlel{nak} response should be regarded as a permanent failure state:
+delivery of the VOEvent message which was met with the \xmlel{nak} to the
+recipient which replied with the \xmlel{nak} should be aborted. If the
 VOEvent message was being transmitted over an author-to-broker connection,
 the author may identify the cause of the failure (for example by making use of
-the information in the \texttt{<Meta />} element of the \texttt{nak}),
+the information in the \xmlel{<Meta />} element of the \xmlel{nak}),
 construct a corrected VOEvent message and attempt a repeat submission. If the
 VOEvent message was being transmitted over a broker-to-subscriber connection,
 the broker should abandon the attempt to deliver this message.
 
 \begin{lstlisting}[language=XML,label=lst:ack,
-                   caption=Sample VOEvent message receipt response indicating successful transmission (\texttt{ack}).]
+                   caption=Sample VOEvent message receipt response indicating successful transmission (\xmlel{ack}).]
 <?xml version='1.0' encoding='UTF-8'?>
 
 <trn:Transport role="ack" version="1.0"
@@ -390,7 +390,7 @@ the broker should abandon the attempt to deliver this message.
 \end{lstlisting}
 
 \begin{lstlisting}[language=XML,label=lst:nak,
-                   caption=Sample VOEvent message receipt response indicating unsuccessful transmission (\texttt{nak}).]
+                   caption=Sample VOEvent message receipt response indicating unsuccessful transmission (\xmlel{nak}).]
 <?xml version='1.0' encoding='UTF-8'?>
 
 <trn:Transport role="nak" version="1.0"
@@ -463,8 +463,8 @@ waits to receive a VOEvent message from the author. When the VOEvent is
 received, the broker should test the message for validity and check any
 digital signature if required (\S\ref{sec:limit:crypto:author}). The broker
 must return a VOEvent message receipt response (\S\ref{sec:transport:ack}) to
-the author indicating that it has either accepted (\texttt{ack}) or refused
-(\texttt{nak}) the VOEvent message. The connection is then closed.
+the author indicating that it has either accepted (\xmlel{ack}) or refused
+(\xmlel{nak}) the VOEvent message. The connection is then closed.
 
 This transaction is illustrated in Figure \ref{fig:protocol:brokerfromauthor}.
 
@@ -489,23 +489,23 @@ is terminated. Otherwise, the broker adds the subscriber to its distribution
 list.
 
 Periodically, at intervals of no more than 90\,s (\S\ref{sec:maintenance}),
-the broker must send an \texttt{iamalive} message
+the broker must send an \xmlel{iamalive} message
 (\S\ref{sec:transport:iamalive}) to the subscriber. The subscriber must reply
-with an \texttt{iamalive} response (\S\ref{sec:transport:iamaliveresponse}).
-If the broker does not receive \texttt{iamalive} response messages from the
+with an \xmlel{iamalive} response (\S\ref{sec:transport:iamaliveresponse}).
+If the broker does not receive \xmlel{iamalive} response messages from the
 subscriber in a timely fashion, it may assume that the subscriber is dead or
 gone and close TCP connection.
 
 When the broker has a new VOEvent message ready for distribution, it is sent
 to the subscriber. The broker receives a VOEvent message receipt response
 (\S\ref{sec:transport:ack}) in reply. The broker may use this to determine
-whether the VOEvent message has been accepted (\texttt{ack}) or refused
-(\texttt{nak}). The broker must not attempt to repeat delivery of the message
-if a \texttt{nak} is received.
+whether the VOEvent message has been accepted (\xmlel{ack}) or refused
+(\xmlel{nak}). The broker must not attempt to repeat delivery of the message
+if a \xmlel{nak} is received.
 
-The TCP connection remains open, and the \texttt{iamalive} exchange
+The TCP connection remains open, and the \xmlel{iamalive} exchange
 continues, until either the subscriber explicitly closes the connection or
-stops sending \texttt{iamalive} response messages, thereby implicitly
+stops sending \xmlel{iamalive} response messages, thereby implicitly
 indicating that the connection is closed.
 
 These transactions are illustrated in Figure \ref{fig:protocol:brokertosub}.
@@ -530,10 +530,10 @@ is terminated. Otherwise, the connection remains open, and the subscriber
 begins receiving messages.
 
 Periodically, at intervals of no more than 90\,s (\S\ref{sec:maintenance}),
-the subscriber should expect to receive an  \texttt{iamalive} message
+the subscriber should expect to receive an  \xmlel{iamalive} message
 (\S\ref{sec:transport:iamalive}) from the broker. The subscriber must reply
-with an \texttt{iamalive} response (\S\ref{sec:transport:iamaliveresponse}).
-If the subscriber does not receive \texttt{iamalive} messages from the broker
+with an \xmlel{iamalive} response (\S\ref{sec:transport:iamaliveresponse}).
+If the subscriber does not receive \xmlel{iamalive} messages from the broker
 in a timely fashion, it may assume that the broker is dead or gone and close
 TCP connection. The subscriber may attempt to re-connect to the broker.
 Re-connection attempts should use a geometric back-off algorithm.
@@ -541,11 +541,11 @@ Re-connection attempts should use a geometric back-off algorithm.
 When a VOEvent message is received, the subscriber may test it for
 validity. The subscriber must return a VOEvent message receipt response
 (\S\ref{sec:transport:ack}) to the broker indicating that it has either
-accepted (\texttt{ack}) or refused (\texttt{nak}) the VOEvent message.
+accepted (\xmlel{ack}) or refused (\xmlel{nak}) the VOEvent message.
 
-The TCP connection remains open, and the \texttt{iamalive} exchange
+The TCP connection remains open, and the \xmlel{iamalive} exchange
 continues, until either the subscriber explicitly closes the connection or
-stops receiving \texttt{iamalive} messages, which indicates that the
+stops receiving \xmlel{iamalive} messages, which indicates that the
 connection has been terminated.
 
 These transactions are illustrated in Figure \ref{fig:protocol:subfrombroker}.
@@ -574,7 +574,7 @@ identifier of a particular VOEvent message, and is not, therefore,
 suitable for use in network de-duplication.
 
 Instead, we regard two messages as being the same if the content between the
-opening \texttt{<} and the closing \texttt{>} of the \texttt{<VOEvent~/>}
+opening \xmlel{<} and the closing \xmlel{>} of the \xmlel{<VOEvent~/>}
 element is bit-for-bit identical, including all white space characters. The
 implementation of this check is left to the discretion of the broker\footnote{
 Appropriate techniques may include directly comparing the bitstream (which
@@ -633,10 +633,10 @@ The criteria used by the broker to determine whether to accept responsibility
 for the event may include checking the digital signature
 (\S\ref{sec:protocol:brokerfromauthor}). If the signature is successfully
 validated (and no other faults are detected), the broker accepts
-responsibility for the message and returns an \texttt{ack}.  Otherwise, if
+responsibility for the message and returns an \xmlel{ack}.  Otherwise, if
 validation of the signature either fails or is impossible to complete, the
-message is discarded and the broker returns a \texttt{nak}. A
-\texttt{<Result~/>} element may be included explaining that the signature
+message is discarded and the broker returns a \xmlel{nak}. A
+\xmlel{<Result~/>} element may be included explaining that the signature
 validation failed: see Section \ref{sec:transport:ack}.
 
 \subsubsection{Subscriber authentication}
@@ -645,10 +645,10 @@ validation failed: see Section \ref{sec:transport:ack}.
 The subscriber connects to the broker as described in Sections
 \ref{sec:protocol:brokertosub} and \ref{sec:protocol:subfrombroker}. At any
 time after the initial connection has been made, the broker may send a
-Transport (\S\ref{sec:transport}) message with the \texttt{role} attribute
-equal to \texttt{authenticate} to the subscriber: see Listing
+Transport (\S\ref{sec:transport}) message with the \xmlel{role} attribute
+equal to \xmlel{authenticate} to the subscriber: see Listing
 \ref{lst:authenticate} for an example. The subscriber must return a digitally
-signed \texttt{authenticate} response. The broker checks the signature as in
+signed \xmlel{authenticate} response. The broker checks the signature as in
 Section \ref{sec:limit:crypto:author}: if it is valid, the broker leaves the
 connection open and delivers VOEvent messages to the subscriber, but, if it is
 invalid, the broker may terminate the connection.
@@ -657,7 +657,7 @@ As long as the connection remains open, there is no need for any further
 messages to be signed. If the connected is lost, forcing a re-connection, the
 authentication exchange will occur as before.
 
-\begin{lstlisting}[language=XML,caption=Sample \texttt{authenticate} message.,
+\begin{lstlisting}[language=XML,caption=Sample \xmlel{authenticate} message.,
                    label=lst:authenticate]
 <?xml version="1.0" encoding="UTF-8"?>
 
@@ -718,7 +718,7 @@ authentication exchange will occur as before.
 
 \section{Version history}
 
-\subsection{Revised in v1.2}
+\subsection{Revised in Working Draft}
 
 \begin{itemize}
     \item{Add Section \ref{sec:common:design}, describing design goals of the
@@ -730,11 +730,11 @@ authentication exchange will occur as before.
     \item{Specify an explicit interval requirement to connection maintenance
     messages (\S\ref{sec:maintenance}).}
 
-    \item{Clarify the semantics of \texttt{nak} Transport messages
+    \item{Clarify the semantics of \xmlel{nak} Transport messages
     (\S\ref{sec:transport:ack}).}
 
     \item{Make it explicit that brokers should not attempt to repeat delivery
-    of messages which meet with a \texttt{nak} on the first attempt: VTP does
+    of messages which meet with a \xmlel{nak} on the first attempt: VTP does
     not support the concept of a ``temporary failure''
     (\S\S\ref{sec:transport:ack}, \ref{sec:protocol:brokertosub}).}
 
@@ -742,8 +742,8 @@ authentication exchange will occur as before.
     only the traffic exchanged over the network and not the implementation of
     the various entities (\S\ref{sec:protocol}).}
 
-    \item{Allow timezone specification in \texttt{iamalive}
-    \texttt{<TimeStamp~/>} elements (\S\S\ref{sec:transport:iamalive},
+    \item{Allow timezone specification in \xmlel{iamalive}
+    \xmlel{<TimeStamp~/>} elements (\S\S\ref{sec:transport:iamalive},
     \ref{sec:transport:iamaliveresponse}, \ref{sec:transport:ack}).}
 
     \item{Remove identifying information from example XML documents
@@ -751,12 +751,12 @@ authentication exchange will occur as before.
     \ref{sec:transport:ack}, \ref{sec:limit:crypto:subscriber}).}
 \end{itemize}
 
-\subsection{Revised in v1.1}
+\subsection{Revised in Note v1.1}
 
-Version 1.1 adds an optional \texttt{<Result~/>} sub-element (containing text)
-within the optional \texttt{<Meta~/>} element. This is intended to convey
-details on errors encountered if the Transport response is \texttt{nak} but
-may also be used for informational purposes in \texttt{ack} messages.
+Version 1.1 adds an optional \xmlel{<Result~/>} sub-element (containing text)
+within the optional \xmlel{<Meta~/>} element. This is intended to convey
+details on errors encountered if the Transport response is \xmlel{nak} but
+may also be used for informational purposes in \xmlel{ack} messages.
 
 \bibliography{ivoatex/ivoabib,vtp}
 
