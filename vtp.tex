@@ -13,9 +13,8 @@
 \author{John Swinbank}
 \editor{John Swinbank}
 
-\previousversion{The first version of the VOEvent Transport Protocol submitted
-for IVOA approval is version 2.0. Earlier versions were described informally
-in IVOA Notes, which this document supersedes.}
+\previousversion[http://www.ivoa.net/documents/Notes/VOEventTransport/]
+                {http://www.ivoa.net/documents/Notes/VOEventTransport/}
 
 \begin{document}
 
@@ -30,6 +29,12 @@ topology of the event distribution network. It is intended to act as a
 reference for the production of compliant protocol implementations.
 
 \end{abstract}
+
+\section*{Versioning}
+
+The first version of the VOEvent Transport Protocol submitted for IVOA
+approval is version 2.0. Earlier versions were described informally in an IVOA
+Note \citep{Allan:2009}, which this document supersedes.
 
 \section*{Acknowledgements}
 
@@ -761,7 +766,7 @@ authentication exchange will occur as before.
     \ref{sec:transport:ack}, \ref{sec:limit:crypto:subscriber}).}
 \end{itemize}
 
-\subsection{Revised in v1.1}
+\subsection{Revised in IVOA Note v1.1}
 
 Version 1.1 adds an optional \xmlel{<Result~/>} sub-element (containing text)
 within the optional \xmlel{<Meta~/>} element. This is intended to convey
