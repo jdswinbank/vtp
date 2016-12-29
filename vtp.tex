@@ -305,8 +305,8 @@ described in Section \ref{sec:limit:crypto:subscriber}.
 
 The \xmlel{iamalive} message is indicated by a role equal to
 \xmlel{iamalive}. The \xmlel{<Origin~/>} element contains the
-IVORN\footnote{International Virtual Observatory Resource Name
-\citep{std:VOID2}.} of the broker which is managing the connection. The
+IVOID\footnote{International Virtual Observatory identifier;
+\citet{std:VOID2}.} of the broker which is managing the connection. The
 \xmlel{<TimeStamp~/>} element contains the date and time at which the message
 was generated formatted as per \S3.3.7 of \citet{Peterson:2012}. This should
 normally include a timezone; if one is omitted, UTC may be assumed.
@@ -330,7 +330,7 @@ normally include a timezone; if one is omitted, UTC may be assumed.
 
 The \xmlel{iamalive} response is an extension of the initial iamalive
 message. It also has a role of \xmlel{iamalive}. It must include an
-additional \xmlel{<Response~/>} element containing the IVORN of the
+additional \xmlel{<Response~/>} element containing the IVOID of the
 subscriber.  It may include a \xmlel{<Meta~/>} element with
 \xmlel{<Param~/>} sub-elements which give additional information about the
 subscriber or any other relevant information. \xmlel{<Param~/>} elements have
@@ -364,7 +364,7 @@ omitted, UTC may be assumed.
 
 The VOEvent message receipt response is similar to the \xmlel{iamalive}
 response except the role is either \xmlel{ack} or \xmlel{nak}, the
-\xmlel{<Origin~/>} is the IVORN of the just-received VOEvent message, and an
+\xmlel{<Origin~/>} is the IVOID of the just-received VOEvent message, and an
 optional \xmlel{<Result~/>} element may accompany the \xmlel{<Param~/>}
 elements. \xmlel{<Result~/>} may contain any string; it is recommended that
 it contain a human-readable error message if role is \xmlel{nak}. The
@@ -589,11 +589,13 @@ and so on. In order to prevent this, each broker must process each unique
 VOEvent message it receives a maximum of once.
 
 Note that it is now established practice to distribute different descriptions
-(e.g. VOEvent 1.1 and 2.0) of the same celestial event with the same IVORN
-\footnote{\url{http://www.ivoa.net/pipermail/voevent/2012-March/002836.html}
-and subsequent discussion.}. Consequently, an IVORN is not a unique
-identifier of a particular VOEvent message, and is not, therefore,
-suitable for use in network de-duplication.
+(e.g. VOEvent 1.1 and 2.0) of the same celestial event with the same IVOID
+\footnote{Refer to
+\url{http://www.ivoa.net/pipermail/voevent/2012-March/002836.html} and
+subsequent discussion. Note that the VOEvent standard uses the now-deprecated
+term “IVORN” in place of IVOID.}. Consequently, an IVOID is not a unique
+identifier of a particular VOEvent message, and is not, therefore, suitable
+for use in network de-duplication.
 
 Instead, we regard two messages as being the same if the content between the
 opening \xmlel{<} and the closing \xmlel{>} of the \xmlel{<VOEvent~/>}
