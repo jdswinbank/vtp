@@ -20,7 +20,7 @@
 
 \begin{abstract}
 
-The IVOA VOEvent Recommendation \citep{Seaman:2011} defines a means of
+The IVOA VOEvent Recommendation \citep{std:VOEVENT2} defines a means of
 describing transient celestial events but, purposely, remains silent on the
 topic of how those descriptions should be transmitted. This document
 formalizes a TCP-based protocol for VOEvent transportation that has been in
@@ -56,7 +56,7 @@ Research Council via Advanced Investigator Grant 247295.
   \label{fig:network}
 \end{figure}
 
-The VOEvent standard \citep{Seaman:2011} defines a means of representing
+The VOEvent standard \citep{std:VOEVENT2} defines a means of representing
 transient celestial events with an implicit request for action on the part of
 the recipient. The VOEvent standard is transport neutral: it does not take a
 position on the mechanism by which the event should be transmitted from its
@@ -216,6 +216,8 @@ The VOEvent network consists of three types of nodes (refer to Fig.
     \item{Subscriber}
 \end{itemize}
 
+
+
 The flow of messages is over three types of connections:
 
 \begin{itemize}
@@ -304,7 +306,7 @@ described in Section \ref{sec:limit:crypto:subscriber}.
 The \xmlel{iamalive} message is indicated by a role equal to
 \xmlel{iamalive}. The \xmlel{<Origin~/>} element contains the
 IVORN\footnote{International Virtual Observatory Resource Name
-\citep{Plante:2007}.} of the broker which is managing the connection. The
+\citep{std:VOID2}.} of the broker which is managing the connection. The
 \xmlel{<TimeStamp~/>} element contains the date and time at which the message
 was generated formatted as per \S3.3.7 of \citet{Peterson:2012}. This should
 normally include a timezone; if one is omitted, UTC may be assumed.
