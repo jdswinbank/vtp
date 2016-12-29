@@ -135,6 +135,11 @@ VOEvent documents from authors through brokers to subscribers.
 VTP transmits no more than one VOEvent in each transaction. If multiple
 documents are to be transmitted, multiple transactions must take place.
 
+VTP delivers VOEvents to eligible subscribers which exist on the network at
+the time of transmission. It does not buffer events for later transmission.
+Subscribers who wish to retrieve historical events should consult an event
+repository.
+
 VTP is non-transformational on VOEvents being transmitted: the document
 delivered to a subscriber should be bit-for-bit identical to that provided by
 an author. If an intermediary wishes to modify or annotate the VOEvent, they
