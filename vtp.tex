@@ -337,8 +337,10 @@ omitted, UTC may be assumed.
 \subsection{\xmlel{iamalive} response}
 \label{sec:transport:iamaliveresponse}
 
-The \xmlel{iamalive} response is an extension of the initial iamalive message.
-It also has a role of \xmlel{iamalive}. It may include an additional
+The \xmlel{iamalive} response is an extension of the initial \xmlel{iamalive}
+message. It also has a role of \xmlel{iamalive}. The \xmlel{<Origin ~/>}
+element is preserved unchanged from the \xmlel{iamalive} being responded to
+(that is, it contains the IVOID of the broker). It may include an additional
 \xmlel{<Response~/>} element containing a URI identifying the
 subscriber\footnote{If the subscriber is registered with the IVOA registry,
 this may be an IVOID, but registration is not required.}. It may also include
