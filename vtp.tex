@@ -627,6 +627,11 @@ would necessarily mean storing an archive of previously-processed events) or
 calculating a hash function such as SHA1 \citep{Eastlake:2001} over the event
 contents and storing the result.}.
 
+In the event that some future revision of the VOEvent standard adopt an
+identifier which is unique to the message, rather than to the celestial event,
+it would be preferable to use that for de-duplication rather than calculating
+a hash over the event content.
+
 \section{Limiting access}
 \label{sec:limit}
 
