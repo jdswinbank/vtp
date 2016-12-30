@@ -204,10 +204,11 @@ and, similarly, it does not make a subscriber of a filtering broker aware that
 they might not receive a complete set of events. It is the responsibility of
 authors and subscribers to ensure that the brokers they use provide the
 services they require. Brokers should clearly advertise any added-value
-behaviour they provide, for example on a website or through the IVOA registry.
+behaviour they provide, for example on a website or through the IVOA registry
+\citep{note:VOARCH}.
 
-\section{Node roles}
-\label{sec:noderoles}
+\section{Network nodes}
+\label{sec:node}
 
 The VOEvent network consists of three types of nodes (refer to Fig.
 \ref{fig:network}):
@@ -218,7 +219,12 @@ The VOEvent network consists of three types of nodes (refer to Fig.
     \item{Subscriber}
 \end{itemize}
 
-
+As described in \citet{std:VOEVENT2}, it is expected that authors and brokers
+will be registered with the IVOA registry\footnote{This is dependent on the
+VOEvent Registry Extensions \citep{std:VOEventRegExt}, which are not fully
+standardized or widely deployed at time of writing. Unregistered services may
+therefore be deployed until such time as the relevant registry support becomes
+available.}. It is not necessary for subscribers to register.
 
 The flow of messages is over three types of connections:
 
@@ -305,13 +311,13 @@ described in Section \ref{sec:limit:crypto:subscriber}.
 \subsection{\xmlel{iamalive} message}
 \label{sec:transport:iamalive}
 
-The \xmlel{iamalive} message is indicated by a role equal to
-\xmlel{iamalive}. The \xmlel{<Origin~/>} element contains the
-IVOID\footnote{International Virtual Observatory identifier;
-\citet{std:VOID2}.} of the broker which is managing the connection. The
-\xmlel{<TimeStamp~/>} element contains the date and time at which the message
-was generated formatted as per \S3.3.7 of \citet{Peterson:2012}. This should
-normally include a timezone; if one is omitted, UTC may be assumed.
+The \xmlel{iamalive} message is indicated by a role equal to \xmlel{iamalive}.
+The \xmlel{<Origin~/>} element contains the IVOID\footnote{International
+Virtual Observatory identifier; \citet{std:VOID2}.} of the broker which is
+managing the connection. The \xmlel{<TimeStamp~/>} element contains the date
+and time at which the message was generated formatted as per \S3.3.7 of
+\citet{Peterson:2012}. This should normally include a timezone; if one is
+omitted, UTC may be assumed.
 
 \begin{lstlisting}[language=xml,caption=Sample \xmlel{iamalive} message.,
                    label=lst:iamalive]
@@ -330,17 +336,18 @@ normally include a timezone; if one is omitted, UTC may be assumed.
 \subsection{\xmlel{iamalive} response}
 \label{sec:transport:iamaliveresponse}
 
-The \xmlel{iamalive} response is an extension of the initial iamalive
-message. It also has a role of \xmlel{iamalive}. It must include an
-additional \xmlel{<Response~/>} element containing the IVOID of the
-subscriber.  It may include a \xmlel{<Meta~/>} element with
-\xmlel{<Param~/>} sub-elements which give additional information about the
-subscriber or any other relevant information. \xmlel{<Param~/>} elements have
-no content and must contain name and value attributes. The names and values
-may be any string. The \xmlel{<TimeStamp~/>} element contains the date and
-time at which the response was generated, formatted as per \S3.3.7 of
-\citet{Peterson:2012}. This should normally include a timezone; if one is
-omitted, UTC may be assumed.
+The \xmlel{iamalive} response is an extension of the initial iamalive message.
+It also has a role of \xmlel{iamalive}. It may include an additional
+\xmlel{<Response~/>} element containing a URI identifying the
+subscriber\footnote{If the subscriber is registered with the IVOA registry,
+this may be an IVOID, but registration is not required.}. It may also include
+a \xmlel{<Meta~/>} element with \xmlel{<Param~/>} sub-elements which give
+additional information about the subscriber or any other relevant information.
+\xmlel{<Param~/>} elements have no content and must contain name and value
+attributes. The names and values may be any string. The \xmlel{<TimeStamp~/>}
+element contains the date and time at which the response was generated,
+formatted as per \S3.3.7 of \citet{Peterson:2012}. This should normally
+include a timezone; if one is omitted, UTC may be assumed.
 
 \begin{lstlisting}[language=XML,caption=Sample \xmlel{iamalive} response.,
                    label=lst:iamaliveresponse]
@@ -403,11 +410,11 @@ the broker should abandon the attempt to deliver this message.
  xsi:schemaLocation="http://telescope-networks.org/schema/Transport/v1.1
                      http://telescope-networks.org/schema/Transport-v1.1.xsd">
     <Origin>ivo://invalid.author/example#0123456789</Origin>
-    <Response>ivo://invalid.broker/example#</Response>
+    <Response>ivo://invalid.subscriber/example#</Response>
     <TimeStamp>2001-01-01T00:00:00Z</TimeStamp>
     <Meta>
         <Param name="IPAddr" value="10.0.0.0" />
-        <Param name="Contact" value="name@broker.invalid" />
+        <Param name="Contact" value="name@subscriber.invalid" />
         <Result>Message received and validated successfully</Result>
     </Meta>
 </trn:Transport>
@@ -423,11 +430,11 @@ the broker should abandon the attempt to deliver this message.
  xsi:schemaLocation="http://telescope-networks.org/schema/Transport/v1.1
                      http://telescope-networks.org/schema/Transport-v1.1.xsd">
     <Origin>ivo://invalid.author/example#0123456789</Origin>
-    <Response>ivo://invalid.broker/example#</Response>
+    <Response>ivo://invalid.subscriber/example#</Response>
     <TimeStamp>2001-01-01T00:00:00Z</TimeStamp>
     <Meta>
         <Param name="IPAddr" value="10.0.0.0" />
-        <Param name="Contact" value="name@broker.invalid" />
+        <Param name="Contact" value="name@subscriber.invalid" />
         <Result>Error in VOEvent message: ISOTime not in ISO 8601 format</Result>
     </Meta>
 </trn:Transport>
@@ -438,8 +445,8 @@ the broker should abandon the attempt to deliver this message.
 
 This section describes the operation and sequencing of VTP operation for each
 end of a connection between an author and a broker, as well as between a
-broker and a subscriber. See Section \ref{sec:noderoles} above for a
-qualitative discussion of the protocol from the viewpoint of each entity.
+broker and a subscriber. See Section \ref{sec:node} above for a qualitative
+discussion of the protocol from the viewpoint of each entity.
 
 \subsection{Author sending to broker}
 \label{sec:protocol:authortobroker}
