@@ -176,7 +176,7 @@ Throughout this document, the term ``message'' refers to a complete VTP
 message, including both the initial byte count and the message payload.  The
 payload is an XML document. It must consist of an XML declaration followed by,
 in order, optional XML comments, a single \xmlel{<VOEvent~/>} or
-\xmlel{<Transport~/>}\footnote{ \xmlel{<Transport~/>} elements are used by
+\xmlel{<Transport~/>}\footnote{\xmlel{<Transport~/>} elements are used by
 the VTP system itself and are invisible to end-users: see Section
 \ref{sec:transport} for details.} element, and more optional XML comments. It
 must validate against either the VOEvent XML
@@ -306,7 +306,7 @@ All Transport messages have the same general syntax, and are defined by the
 Transport schema (Appendix \ref{sec:transportschema}). The connection
 maintenance and receipt acknowledgement message types are described in detail
 in this section; the authentication message type has a special role which is
-described in Section \ref{sec:limit:crypto:subscriber}.
+described in Section \ref{sec:limit:crypto}.
 
 \subsection{\xmlel{iamalive} message}
 \label{sec:transport:iamalive}
@@ -489,13 +489,12 @@ This transaction is illustrated in Figure \ref{fig:protocol:authortobroker}.
 The broker awaits incoming TCP connections from authors. When a connection is
 received, the broker may choose to accept or reject the connection based, for
 example, on an access control whitelist (\S\ref{sec:limit:whitelist}). If the
-author is rejected, the connection is terminated. Otherwise, the broker
-waits to receive a VOEvent message from the author. When the VOEvent is
-received, the broker should test the message for validity and check any
-digital signature if required (\S\ref{sec:limit:crypto:author}). The broker
-must return a VOEvent message receipt response (\S\ref{sec:transport:ack}) to
-the author indicating that it has either accepted (\xmlel{ack}) or refused
-(\xmlel{nak}) the VOEvent message. The connection is then closed.
+author is rejected, the connection is terminated. Otherwise, the broker waits
+to receive a VOEvent message from the author. When the VOEvent is received,
+the broker should test the message for validity. The broker must return a
+VOEvent message receipt response (\S\ref{sec:transport:ack}) to the author
+indicating that it has either accepted (\xmlel{ack}) or refused (\xmlel{nak})
+the VOEvent message. The connection is then closed.
 
 This transaction is illustrated in Figure \ref{fig:protocol:brokerfromauthor}.
 
@@ -625,7 +624,7 @@ in VTP: author to broker (a limit on which authors can publish through a given
 broker) or broker to subscriber (a limit on which subscribers a broker is
 willing to provide with event streams).
 
-Two mechanisms are available within the VTP system to address these
+Two mechanisms are may be applied within the VTP framework to address these
 requirements.
 
 \subsection{IP address whitelisting}
@@ -648,47 +647,21 @@ applicability if the clients to be serviced are using dynamic IP addresses
 A digital signature scheme enables the recipient of a digital message to
 verify the identity of its author \citep{Diffie:1976}. By requiring authors
 and subscribers to apply appropriate signatures to VOEvent and Transport
-messages, it is possible for a broker to verify their identity and restrict
-the services made available to them appropriately, as described below.
+messages, it may be possible for a broker to verify their identity and
+restrict the services made available to them.
 
 Various digital signature schemes which are appropriate for use with VOEvent
-and other XML documents have been suggested \citep{Allen:2008, Denny:2008}.
-The general techniques described in this section are agnostic as to the
-details of the signature scheme adopted, requiring only that it be agreed upon
-by the parties participating in a transaction before that transaction starts.
+and other XML documents have been suggested \citep{Allen:2008, Denny:2008}. At
+time of writing, none have seen significant adoption. Given that, this version
+of the VTP standard does not specify a particular approach, nor require that
+any form of cryptographic authentication be available. However, the
+\xmlel{<Transport~/>} schema provides an \xmlel{<authenticate>} message type,
+shown in Listing \ref{lst:authenticate}, which may be used to implement either
+the \citeauthor{Allen:2008} or \citeauthor{Denny:2008} scheme, or as the basis
+for some other appoach.
 
-\subsubsection{Author submission}
-\label{sec:limit:crypto:author}
-
-The author starts by applying a digital signature to the VOEvent document.
-Submission then proceeds as per Section \S\ref{sec:protocol:authortobroker}.
-The criteria used by the broker to determine whether to accept responsibility
-for the event may include checking the digital signature
-(\S\ref{sec:protocol:brokerfromauthor}). If the signature is successfully
-validated (and no other faults are detected), the broker accepts
-responsibility for the message and returns an \xmlel{ack}.  Otherwise, if
-validation of the signature either fails or is impossible to complete, the
-message is discarded and the broker returns a \xmlel{nak}. A
-\xmlel{<Result~/>} element may be included explaining that the signature
-validation failed: see Section \ref{sec:transport:ack}.
-
-\subsubsection{Subscriber authentication}
-\label{sec:limit:crypto:subscriber}
-
-The subscriber connects to the broker as described in Sections
-\ref{sec:protocol:brokertosub} and \ref{sec:protocol:subfrombroker}. At any
-time after the initial connection has been made, the broker may send a
-Transport (\S\ref{sec:transport}) message with the \xmlel{role} attribute
-equal to \xmlel{authenticate} to the subscriber: see Listing
-\ref{lst:authenticate} for an example. The subscriber must return a digitally
-signed \xmlel{authenticate} response. The broker checks the signature as in
-Section \ref{sec:limit:crypto:author}: if it is valid, the broker leaves the
-connection open and delivers VOEvent messages to the subscriber, but, if it is
-invalid, the broker may terminate the connection.
-
-As long as the connection remains open, there is no need for any further
-messages to be signed. If the connected is lost, forcing a re-connection, the
-authentication exchange will occur as before.
+See also \citet{std:SSOAUTH2} for a description of the authentication schemes
+available for use across the Virtual Observatory.
 
 \begin{lstlisting}[language=XML,caption=Sample \xmlel{authenticate} message.,
                    label=lst:authenticate]
@@ -781,7 +754,7 @@ authentication exchange will occur as before.
 
     \item{Remove identifying information from example XML documents
     (\S\S\ref{sec:transport:iamalive}, \ref{sec:transport:iamaliveresponse},
-    \ref{sec:transport:ack}, \ref{sec:limit:crypto:subscriber}).}
+    \ref{sec:transport:ack}, \ref{sec:limit:crypto}).}
 \end{itemize}
 
 \subsection{Revised in IVOA Note v1.1}
