@@ -744,6 +744,7 @@ available for use across the Virtual Observatory.
 \subsection{Revised in v2.0}
 
 \begin{itemize}
+
     \item{Add Section \ref{sec:common:design}, describing design goals of the
     protocol.}
 
@@ -772,6 +773,24 @@ available for use across the Virtual Observatory.
     \item{Remove identifying information from example XML documents
     (\S\S\ref{sec:transport:iamalive}, \ref{sec:transport:iamaliveresponse},
     \ref{sec:transport:ack}, \ref{sec:limit:crypto}).}
+
+    \item{Replaced all references to ``IVORN'' with ``IVOID''.}
+
+    \item{Make clear that authors and brokers should be registered with the
+    IVOA registry (\S\ref{sec:node}).}
+
+    \item{Substantially trimmed the material on cryptographic signatures
+    (\S\ref{sec:limit:crypto}). Made it clear that this version of VTP does
+    not specify a particular approach.}
+
+    \item{Describe appropriate actions when a receipt response message is not
+    received (\S\S\ref{sec:protocol:authortobroker} \&
+    \S\ref{sec:protocol:brokertosub}).}
+
+    \item{Indicate that timestamps should be in UTC
+    (\S\S\ref{sec:transport:iamalive}, \ref{sec:transport:iamaliveresponse},
+    \ref{sec:transport:ack}).}
+
 \end{itemize}
 
 \subsection{Revised in IVOA Note v1.1}
