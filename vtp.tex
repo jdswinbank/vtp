@@ -71,7 +71,7 @@ next-generation large-scale survey instruments such as LSST\footnote{Large
 Synoptic Survey Telescope; \url{http://www.lsst.org/}}, LIGO\footnote{Laser
 Interferometric Gravitational-Wave Observatory; \url{http://www.ligo.org/}},
 LOFAR\footnote{Low Frequency Array; \url{http://www.lofar.org/}} and
-SKA\footnote{Square Kilometer Array; \url{http://www.ska-telescope.org/}},
+SKA\footnote{Square Kilometre Array; \url{http://www.ska-telescope.org/}},
 which promise event rates ranging up to the millions per day, are
 developed and begin to become available, it is clear that a standard,
 interoperable mechanism for event communication is required. It is such a
@@ -89,7 +89,7 @@ receiving events from a broker and redistributing them to a list of
 subscribers (combining the subscriber and broker roles).
 
 Building upon this architecture, a strongly-connected set of brokers which
-subscriber to each other's event streams and redistribute to their subscribers
+subscribe to each other's event streams and redistribute to their subscribers
 (the ``VOEventNet backbone'') provides a fault-tolerant system which is
 resilient against the failure of one or more network entities. Such a backbone
 system is already under construction by members of the VOEvent community.
@@ -132,8 +132,8 @@ Throughout this document, we adopt the terminology of RFC 2119
 \subsection{Design goals}
 \label{sec:common:design}
 
-The Transport Protocol, hereafter VTP, provides a simple means of transporting
-VOEvent documents from authors through brokers to subscribers.
+The VOEvent Transport Protocol, hereafter VTP, provides a simple means of
+transporting VOEvent documents from authors through brokers to subscribers.
 
 VTP transmits no more than one VOEvent in each transaction. If multiple
 documents are to be transmitted, multiple transactions must take place.
@@ -378,12 +378,11 @@ The VOEvent message receipt response is similar to the \xmlel{iamalive}
 response except the role is either \xmlel{ack} or \xmlel{nak}, the
 \xmlel{<Origin~/>} is the IVOID of the just-received VOEvent message, and an
 optional \xmlel{<Result~/>} element may accompany the \xmlel{<Param~/>}
-elements. \xmlel{<Result~/>} may contain any string; it is recommended that
-it contain a human-readable error message if role is \xmlel{nak}. The
-\xmlel{<TimeStamp~/>} element contains the date and time at which the
-response was generated, formatted as per \S3.3.7 of \citet{Peterson:2012}.
-This should normally include a timezone; if one is omitted, UTC may be
-assumed.
+elements. \xmlel{<Result~/>} may contain any string; it is recommended that it
+contain a human-readable error message if role is \xmlel{nak}. The
+\xmlel{<TimeStamp~/>} element contains the date and time at which the response
+was generated, formatted as per \S3.3.7 of \citet{Peterson:2012}. This time
+should be provided in UTC, and may include a “Z” timezone indicator.
 
 The \xmlel{nak} response indicates that the recipient is unable or unwilling
 to take responsibility for this message. This may be because, for example, the
@@ -676,7 +675,7 @@ any form of cryptographic authentication be available. However, the
 \xmlel{<Transport~/>} schema provides an \xmlel{<authenticate>} message type,
 shown in Listing \ref{lst:authenticate}, which may be used to implement either
 the \citeauthor{Allen:2008} or \citeauthor{Denny:2008} scheme, or as the basis
-for some other appoach.
+for some other approach.
 
 See also \citet{std:SSOAUTH2} for a description of the authentication schemes
 available for use across the Virtual Observatory.
