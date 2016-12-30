@@ -472,6 +472,10 @@ then wait for a VOEvent message receipt response (\S\ref{sec:transport:ack})
 from the broker. The author may use this to determine whether the message
 has been successfully delivered. The connection is then closed.
 
+If a receipt response is not received, the author should assume that a
+temporary failure has prevented the broker from accepting the message for
+distribution. The author may close the connection and retry.
+
 This transaction is illustrated in Figure \ref{fig:protocol:authortobroker}.
 
 \subsection{Broker receiving from author}
@@ -533,6 +537,12 @@ to the subscriber. The broker receives a VOEvent message receipt response
 whether the VOEvent message has been accepted (\xmlel{ack}) or refused
 (\xmlel{nak}). The broker must not attempt to repeat delivery of the message
 if a \xmlel{nak} is received.
+
+If a receipt response is not received, the broker should assume that a
+temporary failure has prevented the subscriber from accepting the message. The
+broker may attempt redelivery. At the discretion of the broker, repeated
+failures to receive timely receipt responses may be grounds to terminate the
+connection.
 
 The TCP connection remains open, and the \xmlel{iamalive} exchange
 continues, until either the subscriber explicitly closes the connection or
