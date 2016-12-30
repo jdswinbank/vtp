@@ -317,8 +317,8 @@ The \xmlel{<Origin~/>} element contains the IVOID\footnote{International
 Virtual Observatory identifier; \citet{std:VOID2}.} of the broker which is
 managing the connection. The \xmlel{<TimeStamp~/>} element contains the date
 and time at which the message was generated formatted as per \S3.3.7 of
-\citet{Peterson:2012}. This should normally include a timezone; if one is
-omitted, UTC may be assumed.
+\citet{Peterson:2012}. This time should be provided in UTC, and may include a
+“Z” timezone indicator.
 
 \begin{lstlisting}[language=xml,caption=Sample \xmlel{iamalive} message.,
                    label=lst:iamalive]
@@ -349,8 +349,8 @@ additional information about the subscriber or any other relevant information.
 \xmlel{<Param~/>} elements have no content and must contain name and value
 attributes. The names and values may be any string. The \xmlel{<TimeStamp~/>}
 element contains the date and time at which the response was generated,
-formatted as per \S3.3.7 of \citet{Peterson:2012}. This should normally
-include a timezone; if one is omitted, UTC may be assumed.
+formatted as per \S3.3.7 of \citet{Peterson:2012}. This time should be
+provided in UTC, and may include a “Z” timezone indicator.
 
 \begin{lstlisting}[language=XML,caption=Sample \xmlel{iamalive} response.,
                    label=lst:iamaliveresponse]
