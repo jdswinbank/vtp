@@ -742,15 +742,15 @@ available for use across the Virtual Observatory.
 \section{Version history}
 \label{sec:history}
 
-\subsection{Revised in latest revision}
+\subsection{Revised since v2.0-PR-20161230}
 
 \begin{itemize}
 
-    \item{Split history by PR revision \S\ref{sec:history}.}
+    \item{Split history by PR revision (Appendix \ref{sec:history}).}
 
 \end{itemize}
 
-\subsection{Revised in v2.0-PR-20161230}
+\subsection{Revised since v2.0-PR-20160503}
 
 \begin{itemize}
 
@@ -765,7 +765,7 @@ available for use across the Virtual Observatory.
 
     \item{Describe appropriate actions when a receipt response message is not
     received (\S\S\ref{sec:protocol:authortobroker} \&
-    \S\ref{sec:protocol:brokertosub}).}
+    \ref{sec:protocol:brokertosub}).}
 
     \item{Indicate that timestamps should be in UTC
     (\S\S\ref{sec:transport:iamalive}, \ref{sec:transport:iamaliveresponse},
@@ -773,7 +773,7 @@ available for use across the Virtual Observatory.
 
 \end{itemize}
 
-\subsection{Revised in v2.0-PR-20160503}
+\subsection{Revised since IVOA Note v1.1}
 
 \begin{itemize}
 
@@ -808,12 +808,16 @@ available for use across the Virtual Observatory.
 
 \end{itemize}
 
-\subsection{Revised in IVOA Note v1.1}
+\subsection{Revised since IVOA Note v1.0}
 
-Version 1.1 adds an optional \xmlel{<Result~/>} sub-element (containing text)
-within the optional \xmlel{<Meta~/>} element. This is intended to convey
-details on errors encountered if the Transport response is \xmlel{nak} but
-may also be used for informational purposes in \xmlel{ack} messages.
+\begin{itemize}
+
+    \item{Add an optional \xmlel{<Result~/>} sub-element (containing text)
+    within the optional \xmlel{<Meta~/>} element. This is intended to convey
+    details on errors encountered if the Transport response is \xmlel{nak} but
+    may also be used for informational purposes in \xmlel{ack} messages.}
+
+\end{itemize}
 
 \bibliography{ivoatex/ivoabib,vtp}
 
