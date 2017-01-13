@@ -12,6 +12,10 @@ DOCDATE := $(shell git log -1 --date=short --pretty=%ad $(DOCVERSION))
 # Version information extracted from git.
 GITVERSION := $(shell git log -1 --date=short --pretty=%h)
 GITDATE := $(shell git log -1 --date=short --pretty=%ai)
+GITSTATUS := $(shell git status --porcelain)
+ifneq "$(GITSTATUS)" ""
+	GITDIRTY = -dirty
+endif
 
 # What is it you're writing: NOTE, WD, PR, or REC
 DOCTYPE = PR
@@ -34,7 +38,9 @@ include ivoatex/Makefile
 # We'll use GraphicsMagick to do PDF to PNG conversion...
 CONVERT = gm convert
 
-ivoatexmeta.tex: Makefile
+.FORCE:
+
+ivoatexmeta.tex: Makefile .FORCE
 	rm -f $@
 	touch $@
 	echo '% GENERATED FILE -- edit this in the Makefile' >>$@
@@ -43,5 +49,5 @@ ivoatexmeta.tex: Makefile
 	/bin/echo '\newcommand{\ivoaDocdatecode}{$(DOCDATE)}' | sed -e 's/-//g' >>$@
 	/bin/echo '\newcommand{\ivoaDoctype}{$(DOCTYPE)}' >>$@
 	/bin/echo '\newcommand{\ivoaDocname}{$(DOCNAME)}' >>$@
-	/bin/echo '\vcsrevision{$(GITVERSION)}' >>$@
+	/bin/echo '\vcsrevision{$(GITVERSION)$(GITDIRTY)}' >>$@
 	/bin/echo '\vcsdate{$(GITDATE)}' >>$@
