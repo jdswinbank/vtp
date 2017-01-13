@@ -740,8 +740,40 @@ available for use across the Virtual Observatory.
 \end{lstlisting}
 
 \section{Version history}
+\label{sec:history}
 
-\subsection{Revised in v2.0}
+\subsection{Revised in latest revision}
+
+\begin{itemize}
+
+    \item{Split history by PR revision \S\ref{sec:history}.}
+
+\end{itemize}
+
+\subsection{Revised in v2.0-PR-20161230}
+
+\begin{itemize}
+
+    \item{Replaced all references to ``IVORN'' with ``IVOID''.}
+
+    \item{Make clear that authors and brokers should be registered with the
+    IVOA registry (\S\ref{sec:node}).}
+
+    \item{Substantially trimmed the material on cryptographic signatures
+    (\S\ref{sec:limit:crypto}). Made it clear that this version of VTP does
+    not specify a particular approach.}
+
+    \item{Describe appropriate actions when a receipt response message is not
+    received (\S\S\ref{sec:protocol:authortobroker} \&
+    \S\ref{sec:protocol:brokertosub}).}
+
+    \item{Indicate that timestamps should be in UTC
+    (\S\S\ref{sec:transport:iamalive}, \ref{sec:transport:iamaliveresponse},
+    \ref{sec:transport:ack}).}
+
+\end{itemize}
+
+\subsection{Revised in v2.0-PR-20160503}
 
 \begin{itemize}
 
@@ -773,23 +805,6 @@ available for use across the Virtual Observatory.
     \item{Remove identifying information from example XML documents
     (\S\S\ref{sec:transport:iamalive}, \ref{sec:transport:iamaliveresponse},
     \ref{sec:transport:ack}, \ref{sec:limit:crypto}).}
-
-    \item{Replaced all references to ``IVORN'' with ``IVOID''.}
-
-    \item{Make clear that authors and brokers should be registered with the
-    IVOA registry (\S\ref{sec:node}).}
-
-    \item{Substantially trimmed the material on cryptographic signatures
-    (\S\ref{sec:limit:crypto}). Made it clear that this version of VTP does
-    not specify a particular approach.}
-
-    \item{Describe appropriate actions when a receipt response message is not
-    received (\S\S\ref{sec:protocol:authortobroker} \&
-    \S\ref{sec:protocol:brokertosub}).}
-
-    \item{Indicate that timestamps should be in UTC
-    (\S\S\ref{sec:transport:iamalive}, \ref{sec:transport:iamaliveresponse},
-    \ref{sec:transport:ack}).}
 
 \end{itemize}
 
