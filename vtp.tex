@@ -157,6 +157,9 @@ is not intended to meet every use case. As per Section \ref{sec:intro}, it is
 anticipated that some VOEvent-based services will require more complex
 protocols.
 
+VTP is independent of implementation: conforming network entities should be
+able to interoperate seamlessly, even when derived from different codebases.
+
 \subsection{Network layer}
 
 VTP operates over TCP \citep{Cerf:1974} connections, and relies on TCP's
@@ -747,6 +750,9 @@ available for use across the Virtual Observatory.
 \begin{itemize}
 
     \item{Split history by PR revision (Appendix \ref{sec:history}).}
+
+    \item{Note that different implementations of VTP should be interoperable
+    (\S\ref{sec:common:design}).}
 
 \end{itemize}
 
