@@ -7,7 +7,7 @@ DOCNAME = vtp
 DOCVERSION := $(shell git describe --abbrev=0)
 
 # The date corresponds to the version above; ISO format
-DOCDATE := $(shell git log -1 --date=short --pretty=%ad $(DOCVERSION))
+DOCDATE := $(shell git tag -l $(DOCVERSION) --format="%(taggerdate:short)")
 
 # Version information extracted from git.
 GITVERSION := $(shell git log -1 --date=short --pretty=%h)
