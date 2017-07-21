@@ -2,10 +2,9 @@
 VOEvent Transport Protocol
 ==========================
 
-Draft version of an updated VOEvent Transport Protocol specification ,
-ultimately for submission to the `IVOA <http://www.ivoa.net>`_ standardization
-process.
+`IVOA`_ `VOEvent Transport Protocol`_ specification. See also the prior work
+by `Allan & Denny`_.
 
-See also the `current version
-<http://www.ivoa.net/documents/Notes/VOEventTransport/>`_, an IVOA note by
-Allan & Denny.
+.. _IVOA: http://www.ivoa.net
+.. _VOEvent Transport Protocol: http://ivoa.net/documents/VOEventTransport/index.html
+.. _Allan & Denny: http://www.ivoa.net/documents/Notes/VOEventTransport/

@@ -18,7 +18,7 @@ ifneq "$(GITSTATUS)" ""
 endif
 
 # What is it you're writing: NOTE, WD, PR, or REC
-DOCTYPE = PR
+DOCTYPE = REC
 
 # Source files for the TeX document (but the main file must always
 # be called $(DOCNAME).tex
