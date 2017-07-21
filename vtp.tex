@@ -77,16 +77,28 @@ developed and begin to become available, it is clear that a standard,
 interoperable mechanism for event communication is required. It is such a
 mechanism that this document describes.
 
+\begin{figure}
+  \begin{center}
+  \includegraphics[width=1.0\textwidth]{figures/ivoa_arch-vtp.pdf}
+  \end{center}
+
+  \caption{Diagram based on \citet{note:VOARCH} showing the VOEvent Transport
+  Protocol (VTP) in the context of the wider IVOA architecture.}
+
+  \label{fig:ivoa_arch}
+\end{figure}
+
 The purpose of the protocol described herein is to transport a VOEvent
 document from its sender to one or more interested recipients. To achieve
 this, we envision three distinct network roles: authors, which create events;
 brokers, which receive events from authors and distribute them, and
-subscribers, which receive and (if appropriate) act upon the events. See
-Figure \ref{fig:network} for an illustration. Note that a single entity may
-perform more than one role within the network: for example, creating events
-and distributing its own creations (combining the author and broker roles) or
-receiving events from a broker and redistributing them to a list of
-subscribers (combining the subscriber and broker roles).
+subscribers, which receive and (if appropriate) act upon the events. Refer to
+Figure \ref{fig:network} for an illustration, while Figure \ref{fig:ivoa_arch}
+shows how this integrates with the wider IVOA architecture. Note that a single
+entity may perform more than one role within the network: for example,
+creating events and distributing its own creations (combining the author and
+broker roles) or receiving events from a broker and redistributing them to a
+list of subscribers (combining the subscriber and broker roles).
 
 Building upon this architecture, a strongly-connected set of brokers which
 subscribe to each other's event streams and redistribute to their subscribers

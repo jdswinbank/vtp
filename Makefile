@@ -28,7 +28,7 @@ SOURCES = $(DOCNAME).tex
 FIGURES =
 
 # List of PDF figures (for vector graphics)
-VECTORFIGURES = figures/authortobroker.pdf figures/brokertosub.pdf figures/network.pdf figures/brokerfromauthor.pdf figures/subfrombroker.pdf
+VECTORFIGURES = figures/ivoa_arch-vtp.pdf figures/authortobroker.pdf figures/brokertosub.pdf figures/network.pdf figures/brokerfromauthor.pdf figures/subfrombroker.pdf
 
 # Additional files to distribute (e.g., CSS, schema files, examples...)
 AUX_FILES =
