@@ -339,14 +339,14 @@ and time at which the message was generated formatted as per \S3.3.7 of
                    label=lst:iamalive]
 <?xml version="1.0" encoding="UTF-8"?>
 
-<trn:Transport role="iamalive" version="1.0"
- xmlns:trn="http://telescope-networks.org/schema/Transport/v1.1"
+<vtp:Transport role="iamalive" version="2.0"
+ xmlns:vtp="http://www.ivoa.net/xml/VTP/v2"
  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
- xsi:schemaLocation="http://ivoa.net/xml/Transport/v1.1
-                     http://ivoa.net/xml/Transport-v1.1.xsd">
+ xsi:schemaLocation="http://ivoa.net/xml/VTP/v2
+                     http://ivoa.net/xml/VTP-v2.0.xsd">
     <Origin>ivo://invalid.broker/example#</Origin>
     <TimeStamp>2001-01-01T00:00:00Z</TimeStamp>
-</trn:Transport>
+</vtp:Transport>
 \end{lstlisting}
 
 \subsection{\xmlel{iamalive} response}
@@ -371,11 +371,11 @@ provided in UTC, and may include a “Z” timezone indicator.
                    label=lst:iamaliveresponse]
 <?xml version='1.0' encoding='UTF-8'?>
 
-<trn:Transport role="iamalive" version="1.0"
- xmlns:trn="http://telescope-networks.org/schema/Transport/v1.1"
+<vtp:Transport role="iamalive" version="2.0"
+ xmlns:vtp="http://www.ivoa.net/xml/VTP/v2"
  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
- xsi:schemaLocation="http://ivoa.net/xml/Transport/v1.1
-                     http://ivoa.net/xml/Transport-v1.1.xsd">
+ xsi:schemaLocation="http://ivoa.net/xml/VTP/v2
+                     http://ivoa.net/xml/VTP-v2.0.xsd">
     <Origin>ivo://invalid.broker/example#</Origin>
     <Response>ivo://invalid.subscriber/example#</Response>
     <TimeStamp>2001-01-01T00:00:00Z</TimeStamp>
@@ -383,7 +383,7 @@ provided in UTC, and may include a “Z” timezone indicator.
         <Param name="IPAddr" value="10.0.0.0" />
         <Param name="Contact" value="name@subscriber.invalid" />
     </Meta>
-</trn:Transport>
+</vtp:Transport>
 \end{lstlisting}
 
 \subsection{VOEvent message receipt response}
@@ -421,11 +421,11 @@ the broker should abandon the attempt to deliver this message.
                    caption=Sample VOEvent message receipt response indicating successful transmission (\xmlel{ack}).]
 <?xml version='1.0' encoding='UTF-8'?>
 
-<trn:Transport role="ack" version="1.0"
- xmlns:trn="http://telescope-networks.org/schema/Transport/v1.1"
+<vtp:Transport role="ack" version="2.0"
+ xmlns:vtp="http://www.ivoa.net/xml/VTP/v2"
  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
- xsi:schemaLocation="http://ivoa.net/xml/Transport/v1.1
-                     http://ivoa.net/xml/Transport-v1.1.xsd">
+ xsi:schemaLocation="http://ivoa.net/xml/VTP/v2
+                     http://ivoa.net/xml/VTP-v2.0.xsd">
     <Origin>ivo://invalid.author/example#0123456789</Origin>
     <Response>ivo://invalid.subscriber/example#</Response>
     <TimeStamp>2001-01-01T00:00:00Z</TimeStamp>
@@ -434,18 +434,18 @@ the broker should abandon the attempt to deliver this message.
         <Param name="Contact" value="name@subscriber.invalid" />
         <Result>Message received and validated successfully</Result>
     </Meta>
-</trn:Transport>
+</vtp:Transport>
 \end{lstlisting}
 
 \begin{lstlisting}[language=XML,label=lst:nak,
                    caption=Sample VOEvent message receipt response indicating unsuccessful transmission (\xmlel{nak}).]
 <?xml version='1.0' encoding='UTF-8'?>
 
-<trn:Transport role="nak" version="1.0"
- xmlns:trn="http://telescope-networks.org/schema/Transport/v1.1"
+<vtp:Transport role="nak" version="2.0"
+ xmlns:vtp="http://www.ivoa.net/xml/VTP/v2"
  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
- xsi:schemaLocation="http://ivoa.net/xml/Transport/v1.1
-                     http://ivoa.net/xml/Transport-v1.1.xsd">
+ xsi:schemaLocation="http://ivoa.net/xml/VTP/v2
+                     http://ivoa.net/xml/VTP-v2.0.xsd">
     <Origin>ivo://invalid.author/example#0123456789</Origin>
     <Response>ivo://invalid.subscriber/example#</Response>
     <TimeStamp>2001-01-01T00:00:00Z</TimeStamp>
@@ -454,7 +454,7 @@ the broker should abandon the attempt to deliver this message.
         <Param name="Contact" value="name@subscriber.invalid" />
         <Result>Error in VOEvent message: ISOTime not in ISO 8601 format</Result>
     </Meta>
-</trn:Transport>
+</vtp:Transport>
 \end{lstlisting}
 
 \section{Protocol operation}
@@ -699,14 +699,14 @@ available for use across the Virtual Observatory.
                    label=lst:authenticate]
 <?xml version="1.0" encoding="UTF-8"?>
 
-<trn:Transport role="authenticate" version="1.0"
- xmlns:trn="http://telescope-networks.org/schema/Transport/v1.1"
+<vtp:Transport role="authenticate" version="2.0"
+ xmlns:vtp="http://www.ivoa.net/xml/VTP/v2"
  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
- xsi:schemaLocation="http://ivoa.net/xml/Transport/v1.1
-                     http://ivoa.net/xml/Transport-v1.1.xsd">
+ xsi:schemaLocation="http://ivoa.net/xml/VTP/v2
+                     http://ivoa.net/xml/VTP-v2.0.xsd">
     <Origin>ivo://invalid.broker/example#</Origin>
     <TimeStamp>2001-01-01T00:00:00Z</TimeStamp>
-</trn:Transport>
+</vtp:Transport>
 \end{lstlisting}
 
 \newpage
@@ -717,8 +717,10 @@ available for use across the Virtual Observatory.
 
 \begin{lstlisting}[language=XML]
 <?xml version="1.0" encoding="utf-8" ?>
-<xs:schema xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-           xmlns:xs="http://www.w3.org/2001/XMLSchema">
+<xs:schema xmlns="http://www.ivoa.net/xml/VTP/v2"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           targetNamespace="http://www.ivoa.net/xml/VTP/v2"
+           version="2.0">
  <xs:element name="Transport">
   <xs:complexType>
    <xs:sequence>
